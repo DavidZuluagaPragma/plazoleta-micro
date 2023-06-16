@@ -11,7 +11,9 @@ public class BusinessException extends ApplicationException{
         USUARIO_NO_PROPETARIO("El usuario no es rol propetario"),
         NOMBRE_NO_VALIDO("El nombre no es valido, puede contener numeros pero no se permiten nombres con solo numeros"),
         NIT_NO_VALIDO("El nit solo puede ser numerico"),
-        TELEFONO_NO_VALIDO("El telefono solo puede ser numerico");
+        TELEFONO_NO_VALIDO("El telefono solo puede ser numerico"),
+        ERROR_BASE_DATOS_CATEGORIA_NO_ENCONTRADA("Error en base de datos, categoria no encontrada"),
+        ERROR_BASE_DATOS_RESTAURANTE_NO_ENCONTRADA("Error en base de datos, restaurante no encontrado"),;
 
         private final String message;
 

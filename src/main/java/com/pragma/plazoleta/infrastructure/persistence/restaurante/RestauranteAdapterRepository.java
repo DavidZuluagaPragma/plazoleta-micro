@@ -1,4 +1,4 @@
-package com.pragma.plazoleta.infrastructure.persistence;
+package com.pragma.plazoleta.infrastructure.persistence.restaurante;
 
 import com.pragma.plazoleta.aplication.config.HeaderRequest;
 import com.pragma.plazoleta.aplication.config.WebClientConfig;
@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
+
+import java.util.Optional;
 
 
 @Component
@@ -52,6 +54,12 @@ public class RestauranteAdapterRepository implements RestauranteRepository {
     public Mono<Restaurante> creaRestaurante(RestauranteData restauranteData) {
         return Mono.fromCallable(() -> restauranteDataRepository.save(restauranteData))
                 .map(DataMapper::convertirRestauranteDataARestaurante)
+                .onErrorResume(Mono::error);
+    }
+
+    @Override
+    public Mono<Optional<RestauranteData>> existeRestaurante(String restauranteId) {
+        return Mono.fromCallable(() -> restauranteDataRepository.findById(Integer.valueOf(restauranteId)))
                 .onErrorResume(Mono::error);
     }
 }
