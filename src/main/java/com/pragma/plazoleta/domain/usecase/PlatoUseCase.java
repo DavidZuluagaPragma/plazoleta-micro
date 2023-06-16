@@ -1,13 +1,12 @@
 package com.pragma.plazoleta.domain.usecase;
 
 import com.pragma.plazoleta.aplication.dto.PlatoDto;
+import com.pragma.plazoleta.aplication.dto.PlatoEditarDto;
 import com.pragma.plazoleta.aplication.mapper.DataMapper;
 import com.pragma.plazoleta.domain.model.plato.Plato;
 import com.pragma.plazoleta.domain.model.plato.gateway.PlatoRepository;
-import com.pragma.plazoleta.domain.model.restaurante.gateway.RestauranteRepository;
 import com.pragma.plazoleta.infrastructure.exceptions.BusinessException;
 import com.pragma.plazoleta.infrastructure.persistence.plato.PlatoData;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -47,4 +46,26 @@ public class PlatoUseCase {
     }
 
 
+    public Mono<Plato> editar(PlatoEditarDto platoDto, String usuarioId) {
+        return restauranteUseCase.esPropetario(usuarioId)
+                .flatMap(esPropetario -> {
+                    if (Boolean.FALSE.equals(esPropetario)) {
+                        return Mono.error(new BusinessException(BusinessException.Type.USUARIO_NO_PROPETARIO));
+                    }
+                    if (platoDto.getId() == null) {
+                        return Mono.error(new BusinessException(BusinessException.Type.EDITAR_PLATO_ERROR));
+                    }
+                    return platoRepository.encontrarPlatoPorId(platoDto.getId())
+                            .flatMap(platoData -> {
+                                if (!platoData.isPresent()) {
+                                    return Mono.error(new BusinessException(BusinessException.Type.ERROR_BASE_DATOS_PLATO_NO_ENCONTRADO));
+                                }
+                                return platoRepository.crearPlato(platoData.get()
+                                        .toBuilder()
+                                        .precio(platoDto.getPrecio())
+                                        .descripcion(platoDto.getDescripcion())
+                                        .build());
+                            });
+                });
+    }
 }

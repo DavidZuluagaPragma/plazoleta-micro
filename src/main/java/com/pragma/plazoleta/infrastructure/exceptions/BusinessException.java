@@ -13,7 +13,9 @@ public class BusinessException extends ApplicationException{
         NIT_NO_VALIDO("El nit solo puede ser numerico"),
         TELEFONO_NO_VALIDO("El telefono solo puede ser numerico"),
         ERROR_BASE_DATOS_CATEGORIA_NO_ENCONTRADA("Error en base de datos, categoria no encontrada"),
-        ERROR_BASE_DATOS_RESTAURANTE_NO_ENCONTRADA("Error en base de datos, restaurante no encontrado"),;
+        ERROR_BASE_DATOS_RESTAURANTE_NO_ENCONTRADA("Error en base de datos, restaurante no encontrado"),
+        EDITAR_PLATO_ERROR("El id del plano no puede ser nulo"),
+        ERROR_BASE_DATOS_PLATO_NO_ENCONTRADO("Error en base de datos, plato no encontrado");
 
         private final String message;
 
