@@ -25,6 +25,21 @@ public class RestauranteUseCase {
                                 return Mono.error(new BusinessException(BusinessException.Type.USUARIO_NO_PROPETARIO));
                             }
                             return restauranteRepository.creaRestaurante(DataMapper.convertirRestauranteARestauranteData(restaurante));
-                        }).onErrorResume(throwable -> Mono.error(new BusinessException(BusinessException.Type.USUARIO_NO_PROPETARIO))));
+                        }));
     }
+
+    public  Mono<Boolean> esPropetario(String usuarioId){
+        return restauranteRepository.esPropetario(usuarioId);
+    }
+
+    public Mono<Restaurante> existeRestaurante (String restauranteId){
+        return restauranteRepository.existeRestaurante(restauranteId)
+                .flatMap(restauranteData -> {
+                    if (!restauranteData.isPresent()){
+                        return Mono.error(new BusinessException(BusinessException.Type.ERROR_BASE_DATOS_RESTAURANTE_NO_ENCONTRADA));
+                    }
+                    return Mono.just(DataMapper.convertirRestauranteDataARestaurante(restauranteData.get()));
+                });
+    }
+
 }

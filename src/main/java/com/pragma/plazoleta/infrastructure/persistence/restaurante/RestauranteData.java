@@ -1,4 +1,4 @@
-package com.pragma.plazoleta.infrastructure.persistence;
+package com.pragma.plazoleta.infrastructure.persistence.restaurante;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

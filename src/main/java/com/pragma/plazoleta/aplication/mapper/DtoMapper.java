@@ -1,7 +1,12 @@
 package com.pragma.plazoleta.aplication.mapper;
 
+import com.pragma.plazoleta.aplication.dto.CategoriaDto;
+import com.pragma.plazoleta.aplication.dto.PlatoDto;
 import com.pragma.plazoleta.aplication.dto.RestauranteDto;
+import com.pragma.plazoleta.domain.model.categoria.Categoria;
+import com.pragma.plazoleta.domain.model.plato.Plato;
 import com.pragma.plazoleta.domain.model.restaurante.Restaurante;
+import com.pragma.plazoleta.infrastructure.persistence.plato.PlatoData;
 
 public class DtoMapper {
 
@@ -30,6 +35,25 @@ public class DtoMapper {
                 .nit(restaurante.getNit())
                 .telefono(restaurante.getTelefono())
                 .urlLogo(restaurante.getUrlLogo())
+                .build();
+    }
+
+    public static Plato convertirPlatoDtoAPlato(PlatoDto platoDto) {
+        return Plato.builder()
+                .id(platoDto.getId())
+                .nombre(platoDto.getNombre())
+                .descripcion(platoDto.getDescripcion())
+                .activo(platoDto.getActivo())
+                .precio(platoDto.getPrecio())
+                .urlImagen(platoDto.getUrlImagen())
+                .build();
+    }
+
+    public static Categoria convertirCategoriaDtoACategoria(CategoriaDto categoriaDto) {
+        return Categoria.builder()
+                .Id(categoriaDto.getId())
+                .Nombre(categoriaDto.getNombre())
+                .Descripcion(categoriaDto.getDescripcion())
                 .build();
     }
 

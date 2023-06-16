@@ -1,7 +1,11 @@
 package com.pragma.plazoleta.aplication.mapper;
 
+import com.pragma.plazoleta.domain.model.categoria.Categoria;
+import com.pragma.plazoleta.domain.model.plato.Plato;
 import com.pragma.plazoleta.domain.model.restaurante.Restaurante;
-import com.pragma.plazoleta.infrastructure.persistence.RestauranteData;
+import com.pragma.plazoleta.infrastructure.persistence.categoria.CategoriaData;
+import com.pragma.plazoleta.infrastructure.persistence.plato.PlatoData;
+import com.pragma.plazoleta.infrastructure.persistence.restaurante.RestauranteData;
 
 public class DataMapper {
 
@@ -33,5 +37,44 @@ public class DataMapper {
                 .build();
     }
 
+    public static Categoria convertirCategoriaDataACategoria(CategoriaData categoriaData) {
+        return Categoria.builder()
+                .Id(categoriaData.getId())
+                .Nombre(categoriaData.getNombre())
+                .Descripcion(categoriaData.getDescripcion())
+                .build();
+    }
+
+    public static CategoriaData convertirCategoriaACategoriaData(Categoria categoria) {
+        return CategoriaData.builder()
+                .Id(categoria.getId())
+                .Nombre(categoria.getNombre())
+                .Descripcion(categoria.getDescripcion())
+                .build();
+    }
+
+    public static Plato convertirPlatoDataAPlato(PlatoData platoData) {
+        return Plato.builder()
+                .id(platoData.getId())
+                .nombre(platoData.getNombre())
+                .descripcion(platoData.getDescripcion())
+                .activo(platoData.getActivo())
+                .categoriaId(platoData.getCategoria().getId())
+                .restauranteId(platoData.getRestaurante().getId())
+                .precio(platoData.getPrecio())
+                .urlImagen(platoData.getUrlImagen())
+                .build();
+    }
+
+    public static PlatoData convertirPlatoAPlatoData(Plato plato) {
+        return PlatoData.builder()
+                .id(plato.getId())
+                .nombre(plato.getNombre())
+                .descripcion(plato.getDescripcion())
+                .activo(plato.getActivo())
+                .precio(plato.getPrecio())
+                .urlImagen(plato.getUrlImagen())
+                .build();
+    }
 
 }
