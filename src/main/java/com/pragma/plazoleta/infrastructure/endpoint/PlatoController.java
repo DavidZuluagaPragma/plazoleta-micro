@@ -1,5 +1,6 @@
 package com.pragma.plazoleta.infrastructure.endpoint;
 
+import com.pragma.plazoleta.aplication.dto.PlatoCambiarEstadoDto;
 import com.pragma.plazoleta.aplication.dto.PlatoDto;
 import com.pragma.plazoleta.aplication.dto.PlatoEditarDto;
 import com.pragma.plazoleta.domain.model.plato.Plato;
@@ -25,6 +26,11 @@ public class PlatoController {
     @PutMapping("/editar")
     public Mono<Plato> editarPlato(@RequestBody PlatoEditarDto platoDto){
         return useCase.editar(platoDto, platoDto.getUsuarioId());
+    }
+
+    @PutMapping("/editar-estado")
+    public Mono<Plato> cambiarEstadoPlato(@RequestBody PlatoCambiarEstadoDto platoDto){
+        return useCase.cambiarEstadoPlato(platoDto, "2");
     }
 
 }

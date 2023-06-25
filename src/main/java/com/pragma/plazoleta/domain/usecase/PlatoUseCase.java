@@ -1,5 +1,6 @@
 package com.pragma.plazoleta.domain.usecase;
 
+import com.pragma.plazoleta.aplication.dto.PlatoCambiarEstadoDto;
 import com.pragma.plazoleta.aplication.dto.PlatoDto;
 import com.pragma.plazoleta.aplication.dto.PlatoEditarDto;
 import com.pragma.plazoleta.aplication.mapper.DataMapper;
@@ -64,6 +65,25 @@ public class PlatoUseCase {
                                         .toBuilder()
                                         .precio(platoDto.getPrecio())
                                         .descripcion(platoDto.getDescripcion())
+                                        .build());
+                            });
+                });
+    }
+
+    public Mono<Plato> cambiarEstadoPlato(PlatoCambiarEstadoDto platoDto, String usuarioId) {
+        return restauranteUseCase.existeRestaurante(platoDto.getRestauranteId())
+                .flatMap(restaurante -> {
+                    if (restaurante.getIdPropietario() != Integer.parseInt(usuarioId)) {
+                        return Mono.error(new BusinessException(BusinessException.Type.PLATO_NO_ES_DEL_PROPETARIO));
+                    }
+                    return platoRepository.encontrarPlatoPorId(platoDto.getId())
+                            .flatMap(platoData -> {
+                                if (!platoData.isPresent()) {
+                                    return Mono.error(new BusinessException(BusinessException.Type.ERROR_BASE_DATOS_PLATO_NO_ENCONTRADO));
+                                }
+                                return platoRepository.crearPlato(platoData.get()
+                                        .toBuilder()
+                                        .activo(platoDto.getActivo())
                                         .build());
                             });
                 });
