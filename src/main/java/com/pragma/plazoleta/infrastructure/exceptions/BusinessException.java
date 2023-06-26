@@ -16,7 +16,10 @@ public class BusinessException extends ApplicationException{
         ERROR_BASE_DATOS_RESTAURANTE_NO_ENCONTRADA("Error en base de datos, restaurante no encontrado"),
         EDITAR_PLATO_ERROR("El id del plano no puede ser nulo"),
         PLATO_NO_ES_DEL_PROPETARIO("El plato no es de algun restaurante del propetario"),
-        ERROR_BASE_DATOS_PLATO_NO_ENCONTRADO("Error en base de datos, plato no encontrado");
+        ERROR_BASE_DATOS_PLATO_NO_ENCONTRADO("Error en base de datos, plato no encontrado"),
+        PLATO_DE_OTRO_RESTAURANTE("El plato solicitado esta se encuentra en otro restaurante"),
+        PEDIDO_ACTIVO("El cliente ya tiene un pedido activo"),
+        NO_TIENE_PLATOS("No tiene platos añadidos");
 
         private final String message;
 

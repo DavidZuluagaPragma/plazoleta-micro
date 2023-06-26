@@ -4,9 +4,13 @@ import com.pragma.plazoleta.aplication.dto.CategoriaDto;
 import com.pragma.plazoleta.aplication.dto.PlatoRespuestaDto;
 import com.pragma.plazoleta.aplication.dto.RestauranteRespuestaDto;
 import com.pragma.plazoleta.domain.model.categoria.Categoria;
+import com.pragma.plazoleta.domain.model.pedido.Pedido;
+import com.pragma.plazoleta.domain.model.pedido_plato.PedidoPlato;
 import com.pragma.plazoleta.domain.model.plato.Plato;
 import com.pragma.plazoleta.domain.model.restaurante.Restaurante;
 import com.pragma.plazoleta.infrastructure.persistence.categoria.CategoriaData;
+import com.pragma.plazoleta.infrastructure.persistence.pedido.PedidoData;
+import com.pragma.plazoleta.infrastructure.persistence.pedido_plato.PedidoPlatoData;
 import com.pragma.plazoleta.infrastructure.persistence.plato.PlatoData;
 import com.pragma.plazoleta.infrastructure.persistence.restaurante.RestauranteData;
 
@@ -82,6 +86,45 @@ public class DataMapper {
                         .nombre(plato.getRestaurante().getNombre())
                         .urlLogo(plato.getRestaurante().getUrlLogo())
                         .build())
+                .build();
+    }
+
+    public static Pedido convertirPedidoDataAPedido(PedidoData pedidoData) {
+        return Pedido.builder()
+                .id(pedidoData.getId())
+                .estado(pedidoData.getEstado())
+                .chefId(pedidoData.getChefId())
+                .clienteId(pedidoData.getClienteId())
+                .fecha(pedidoData.getFecha())
+                .restauranteId(pedidoData.getRestauranteId())
+                .build();
+    }
+
+    public static PedidoData convertirPedidoAPedidoData(Pedido pedido) {
+        return PedidoData.builder()
+                .id(pedido.getId())
+                .estado(pedido.getEstado())
+                .chefId(pedido.getChefId())
+                .clienteId(pedido.getClienteId())
+                .fecha(pedido.getFecha())
+                .restauranteId(pedido.getRestauranteId())
+                .build();
+    }
+
+    public static PedidoPlato convertirPedidoPlatoDataAPedidoPlato(PedidoPlatoData pedidoPlatoData) {
+        return PedidoPlato.builder()
+                .platoId(pedidoPlatoData.getPlatoId())
+                .pedidoId(pedidoPlatoData.getPedidoId())
+                .cantidad(pedidoPlatoData.getCantidad())
+                .build();
+    }
+
+    public static PedidoPlatoData convertirPedidoPlatoAPedidoPlatoData (PedidoPlato pedido) {
+        return PedidoPlatoData.builder()
+                .id(pedido.getId())
+                .platoId(pedido.getPlatoId())
+                .pedidoId(pedido.getPedidoId())
+                .cantidad(pedido.getCantidad())
                 .build();
     }
 
