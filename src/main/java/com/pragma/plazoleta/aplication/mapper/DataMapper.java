@@ -1,5 +1,8 @@
 package com.pragma.plazoleta.aplication.mapper;
 
+import com.pragma.plazoleta.aplication.dto.CategoriaDto;
+import com.pragma.plazoleta.aplication.dto.PlatoRespuestaDto;
+import com.pragma.plazoleta.aplication.dto.RestauranteRespuestaDto;
 import com.pragma.plazoleta.domain.model.categoria.Categoria;
 import com.pragma.plazoleta.domain.model.plato.Plato;
 import com.pragma.plazoleta.domain.model.restaurante.Restaurante;
@@ -66,14 +69,19 @@ public class DataMapper {
                 .build();
     }
 
-    public static PlatoData convertirPlatoAPlatoData(Plato plato) {
-        return PlatoData.builder()
-                .id(plato.getId())
-                .nombre(plato.getNombre())
-                .descripcion(plato.getDescripcion())
-                .activo(plato.getActivo())
-                .precio(plato.getPrecio())
-                .urlImagen(plato.getUrlImagen())
+    public static PlatoRespuestaDto convertirPlatoDataAPlatoRespuestaDto(PlatoData plato) {
+        return PlatoRespuestaDto.builder()
+                .categoriaDto(CategoriaDto
+                        .builder()
+                        .id(plato.getCategoria().getId())
+                        .nombre(plato.getCategoria().getNombre())
+                        .descripcion(plato.getCategoria().getDescripcion())
+                        .build())
+                .restauranteDto(RestauranteRespuestaDto
+                        .builder()
+                        .nombre(plato.getRestaurante().getNombre())
+                        .urlLogo(plato.getRestaurante().getUrlLogo())
+                        .build())
                 .build();
     }
 
