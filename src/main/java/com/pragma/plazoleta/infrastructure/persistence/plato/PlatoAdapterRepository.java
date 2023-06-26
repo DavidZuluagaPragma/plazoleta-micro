@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -25,5 +26,18 @@ public class PlatoAdapterRepository implements PlatoRepository {
     @Override
     public Mono<Optional<PlatoData>> encontrarPlatoPorId(Integer platoId) {
         return Mono.fromCallable(() -> repository.findById(platoId));
+    }
+
+    @Override
+    public Flux<PlatoData> encontrarPlatoPorRestaurante(Integer restauranteId) {
+        return Flux.fromIterable(() -> repository.findAllByRestauranteId(restauranteId).iterator())
+                .onErrorResume(Mono::error);
+    }
+
+    @Override
+    public List<Plato> listaTodosRestaurantes(Integer restauranteId) {
+        return repository.findAllByRestauranteId(restauranteId).stream()
+                .map(DataMapper::convertirPlatoDataAPlato)
+                .toList();
     }
 }

@@ -1,5 +1,6 @@
 package com.pragma.plazoleta.domain.usecase;
 
+import com.pragma.plazoleta.aplication.dto.RestauranteRespuestaDto;
 import com.pragma.plazoleta.domain.model.restaurante.Restaurante;
 import com.pragma.plazoleta.domain.model.restaurante.gateway.RestauranteRepository;
 import com.pragma.plazoleta.infrastructure.exceptions.BusinessException;
@@ -10,10 +11,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.Optional;
+import java.util.*;
 
 @ExtendWith(MockitoExtension.class)
 class RestauranteUseCaseTest {
@@ -156,6 +160,53 @@ class RestauranteUseCaseTest {
 
         StepVerifier.create(result)
                 .expectErrorMessage(BusinessException.Type.ERROR_BASE_DATOS_RESTAURANTE_NO_ENCONTRADA.getMessage())
+                .verify();
+
+    }
+
+    @Test
+    void conseguirRestaurantesExitoso() {
+
+        List<RestauranteData> restauranteDataList = new ArrayList<>();
+
+        RestauranteData restaurante = RestauranteData.builder()
+                .nombre("PAPANATAS")
+                .direccion("LOS PATIOS")
+                .telefono("+573202040834")
+                .urlLogo("urlLogo")
+                .nit("123456")
+                .idPropietario(1)
+                .build();
+
+        restauranteDataList.add(restaurante);
+
+        int numeroPagina = 0;
+        int tamanoPagina = 10;
+        PageRequest pageRequest = PageRequest.of(numeroPagina, tamanoPagina);
+
+        Page<RestauranteData> restaurantePage = new PageImpl<>(restauranteDataList, pageRequest, restauranteDataList.size());
+
+        List<RestauranteRespuestaDto> restauranteDataEsperado = new ArrayList<>();
+
+        RestauranteRespuestaDto restauranteRespuestaDto = RestauranteRespuestaDto.builder()
+                .nombre("PAPANATAS")
+                .urlLogo("urlLogo")
+                .build();
+
+        restauranteDataEsperado.add(restauranteRespuestaDto);
+
+        com.pragma.plazoleta.domain.model.page.Page pageEsperado = com.pragma.plazoleta.domain.model.page.Page.builder()
+                .contenido(Arrays.asList(restauranteDataEsperado.toArray()))
+                .totalElementos(restauranteDataEsperado.stream().count())
+                .build();
+
+        Mockito.when(restauranteRepository.conseguirRestaurantes(1, 10)).thenReturn(Mono.just(restaurantePage));
+
+        var result = restauranteUseCase.conseguirRestaurantes(1, 10);
+
+        StepVerifier.create(result)
+                .expectNext(pageEsperado)
+                .expectComplete()
                 .verify();
 
     }

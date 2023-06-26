@@ -2,17 +2,24 @@ package com.pragma.plazoleta.infrastructure.persistence.restaurante;
 
 import com.pragma.plazoleta.aplication.config.HeaderRequest;
 import com.pragma.plazoleta.aplication.config.WebClientConfig;
+import com.pragma.plazoleta.aplication.dto.RestauranteRespuestaDto;
 import com.pragma.plazoleta.aplication.mapper.DataMapper;
+import com.pragma.plazoleta.aplication.mapper.DtoMapper;
 import com.pragma.plazoleta.domain.model.common.Utils;
 import com.pragma.plazoleta.domain.model.restaurante.Restaurante;
 import com.pragma.plazoleta.domain.model.restaurante.gateway.RestauranteRepository;
 import com.pragma.plazoleta.infrastructure.exceptions.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -32,7 +39,7 @@ public class RestauranteAdapterRepository implements RestauranteRepository {
         try {
             return this.webClient.request()
                     .get()
-                    .uri("/propetario/"+usuarioId)
+                    .uri("/propetario/" + usuarioId)
                     .header(Utils.ACCEPT, header.headers().getAccept())
                     .header(Utils.CONTENT_TYPE, header.headers().getContentType())
                     .retrieve()
@@ -61,5 +68,13 @@ public class RestauranteAdapterRepository implements RestauranteRepository {
     public Mono<Optional<RestauranteData>> existeRestaurante(String restauranteId) {
         return Mono.fromCallable(() -> restauranteDataRepository.findById(Integer.valueOf(restauranteId)))
                 .onErrorResume(Mono::error);
+    }
+
+    @Override
+    public Mono<Page<RestauranteData>> conseguirRestaurantes(int numeroPagina, int tamanoPagina) {
+        Pageable pageRequest = PageRequest.of(numeroPagina, tamanoPagina, Sort.by("nombre").ascending());
+        return Mono.fromCallable(() ->  restauranteDataRepository.findAll(pageRequest))
+                .onErrorResume(Mono::error);
+
     }
 }
