@@ -2,7 +2,7 @@ package com.pragma.plazoleta.infrastructure.persistence.plato;
 
 import com.pragma.plazoleta.infrastructure.persistence.categoria.CategoriaData;
 import com.pragma.plazoleta.infrastructure.persistence.restaurante.RestauranteData;
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
