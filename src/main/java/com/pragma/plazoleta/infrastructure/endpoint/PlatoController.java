@@ -9,8 +9,11 @@ import com.pragma.plazoleta.domain.model.plato.Plato;
 import com.pragma.plazoleta.domain.usecase.PlatoUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/platos")
@@ -21,6 +24,7 @@ public class PlatoController {
     PlatoUseCase useCase;
 
     @PostMapping("/crear")
+    @PreAuthorize("hasAuthority('PROPETARIO')")
     public Mono<Plato> crearPlato(@RequestBody PlatoDto platoDto){
         return useCase.crearPlato(platoDto, platoDto.getUsuarioId());
     }
@@ -31,8 +35,9 @@ public class PlatoController {
     }
 
     @PutMapping("/editar-estado")
-    public Mono<Plato> cambiarEstadoPlato(@RequestBody PlatoCambiarEstadoDto platoDto){
-        return useCase.cambiarEstadoPlato(platoDto, "2");
+    @PreAuthorize("hasAuthority('PROPETARIO')")
+    public Mono<Plato> cambiarEstadoPlato(Principal principal, @RequestBody PlatoCambiarEstadoDto platoDto){
+        return useCase.cambiarEstadoPlato(platoDto, principal.getName());
     }
 
     @GetMapping("/todos")

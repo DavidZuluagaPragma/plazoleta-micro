@@ -1,6 +1,6 @@
 package com.pragma.plazoleta.infrastructure.persistence.restaurante;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
