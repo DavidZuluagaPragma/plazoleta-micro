@@ -16,7 +16,6 @@ public class WebClientConfig {
         return WebClient.builder()
                 .baseUrl(headerRequest.headers().getUrlBase())
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                //.defaultHeaders(httpHeaders -> httpHeaders.setBasicAuth(headerRequest.headers().getUser(), headerRequest.headers().getPassword()))
                 .build();
     }
 

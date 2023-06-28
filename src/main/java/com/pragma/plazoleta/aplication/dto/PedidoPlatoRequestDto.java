@@ -5,18 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
 
-import java.util.List;
-
 @Data
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class PedidoDto {
+public class PedidoPlatoRequestDto {
     @NonNull
-    private Integer clienteId;
+    private Integer platoId;
     @NonNull
-    private Integer chefId;
-    @NonNull
-    private Integer restauranteId;
-    @NonNull
-    private List<PedidoPlatoRequestDto> platos;
+    private Integer cantidad;
 }
