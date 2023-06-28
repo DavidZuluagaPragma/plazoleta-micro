@@ -12,9 +12,10 @@ import java.util.List;
 @Builder(toBuilder = true)
 public class PedidoListaDto {
 
-    Usuario chef;
-    Usuario cliente;
-    String estado;
-    List<PlatoResponseDto> listaDePlatos;
+    private Integer id;
+    private Usuario chef;
+    private Usuario cliente;
+    private String estado;
+    private List<PlatoResponseDto> listaDePlatos;
 
 }

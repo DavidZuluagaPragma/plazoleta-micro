@@ -103,6 +103,7 @@ public class PedidoUseCase {
                                                     .build())
                                             .doOnNext(listaPlatos::add))
                                     .then(Mono.just(PedidoListaDto.builder()
+                                            .id(pedido.getId())
                                             .cliente(usuarioPedidoDto.getCliente())
                                             .chef(usuarioPedidoDto.getChef())
                                             .estado(estado)
