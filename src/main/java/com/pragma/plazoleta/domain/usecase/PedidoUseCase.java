@@ -71,7 +71,7 @@ public class PedidoUseCase {
                                             ))
                                     .then(pedidoGateWay.crearPedido(Pedido.builder()
                                             .estado(PEDIDO_PENTIENDE)
-                                            .chefId(pedidoDto.getChefId())
+                                            .chefId(0)
                                             .clienteId(pedidoDto.getClienteId())
                                             .fecha(new Date())
                                             .restauranteId(pedidoDto.getRestauranteId())

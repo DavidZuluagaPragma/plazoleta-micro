@@ -14,8 +14,6 @@ public class PedidoDto {
     @NonNull
     private Integer clienteId;
     @NonNull
-    private Integer chefId;
-    @NonNull
     private Integer restauranteId;
     @NonNull
     private List<PedidoPlatoRequestDto> platos;
