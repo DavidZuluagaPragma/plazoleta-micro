@@ -8,6 +8,8 @@ import com.pragma.plazoleta.domain.model.pedido_plato.PedidoPlato;
 import com.pragma.plazoleta.domain.model.pedido_plato.gateway.PedidoPlatoGateWay;
 import com.pragma.plazoleta.domain.model.plato.gateway.PlatoRepository;
 import com.pragma.plazoleta.domain.model.restaurante.gateway.RestauranteRepository;
+import com.pragma.plazoleta.domain.model.twilio.TwilioEstado;
+import com.pragma.plazoleta.domain.model.twilio.gateway.TwilioGateWay;
 import com.pragma.plazoleta.domain.model.usuario.Usuario;
 import com.pragma.plazoleta.domain.model.usuario.gateway.UsuarioGateWay;
 import com.pragma.plazoleta.infrastructure.exceptions.BusinessException;
@@ -50,9 +52,11 @@ class PedidoUseCaseTest {
     @Mock
     RestauranteRepository restauranteRepository;
 
-
     @Mock
     UsuarioGateWay usuarioGateWay;
+
+    @Mock
+    TwilioGateWay twilioGateWay;
 
     @Test
     void crearPedido() {
@@ -374,10 +378,6 @@ class PedidoUseCaseTest {
                 .listaDePlatos(List.of(platoResponseDto))
                 .build();
 
-
-
-
-
         Mockito.when(pedidoGateWay.encontrarPedidoPorId(pedido.getId())).thenReturn(Mono.just(pedido));
         Mockito.when(pedidoGateWay.crearPedido(pedido
                 .toBuilder()
@@ -394,6 +394,57 @@ class PedidoUseCaseTest {
                 .expectNext(pedidoListaDto)
                 .expectComplete()
                 .verify();
+    }
+
+    @Test
+    void pedidoListoExitoso() {
+        Pedido pedido = Pedido.builder()
+                .id(1)
+                .estado("PENDIENTE")
+                .chefId(17)
+                .clienteId(1)
+                .fecha(new Date())
+                .restauranteId(1)
+                .build();
+
+        UsuarioPedidoRequestDto usuarioPedidoRequestDto = UsuarioPedidoRequestDto.builder()
+                .chef(0)
+                .cliente(pedido.getClienteId())
+                .build();
+
+        UsuarioPedidoDto usuarioPedidoDto = UsuarioPedidoDto.builder()
+                .chef(Usuario.builder()
+                        .build())
+                .cliente(Usuario.builder()
+                        .id(1)
+                        .celular("+573202040834")
+                        .build())
+                .build();
+
+        EnviarMensajeDto enviarMensajeDto = EnviarMensajeDto.builder()
+                .numeroDestino(usuarioPedidoDto.getCliente().getCelular())
+                .usuario("javatechie")
+                .build();
+
+        RespuestaMensajeDto respuestaMensajeDto = RespuestaMensajeDto.builder()
+                .mensaje("HOLA")
+                .estado(TwilioEstado.DELIVERED)
+                .build();
+
+        Mockito.when(pedidoGateWay.encontrarPedidoPorId(pedido.getId())).thenReturn(Mono.just(pedido));
+        Mockito.when(pedidoGateWay.crearPedido(pedido.toBuilder()
+                        .estado("PEDIDO LISTO")
+                .build())).thenReturn(Mono.just(pedido));
+        Mockito.when(usuarioGateWay.conseguirUsuariosDelPedido(usuarioPedidoRequestDto,"TOKEN")).thenReturn(Mono.just(usuarioPedidoDto));
+        Mockito.when(twilioGateWay.enviarMensaje(enviarMensajeDto, "TOKEN")).thenReturn(Mono.just(respuestaMensajeDto));
+
+        var result = useCase.pedidoListo("1", "TOKEN");
+
+        StepVerifier.create(result)
+                .expectNext(respuestaMensajeDto)
+                .expectComplete()
+                .verify();
+
     }
 
 }

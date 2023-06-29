@@ -22,13 +22,13 @@ public class PedidoController {
     PedidoUseCase useCase;
 
     @PostMapping("/crear")
-    public Flux<PedidoResponse> crearPedido(@RequestBody PedidoDto pedidoDto){
+    public Flux<PedidoResponse> crearPedido(@RequestBody PedidoDto pedidoDto) {
         return useCase.crearPedido(pedidoDto);
     }
 
     @GetMapping("/listar/{estado}")
     @PreAuthorize("hasAuthority('EMPLEADO')")
-    public Mono<Page<PedidoListaDto>> listarPedidosPorEstado(@RequestHeader("Authorization") String token, @PathVariable String estado){
+    public Mono<Page<PedidoListaDto>> listarPedidosPorEstado(@RequestHeader("Authorization") String token, @PathVariable String estado) {
         return useCase.listarPedidosPorEstado(estado, token);
     }
 
@@ -36,8 +36,14 @@ public class PedidoController {
     @PreAuthorize("hasAuthority('EMPLEADO')")
     public Mono<PedidoListaDto> asignarPedido(@RequestHeader("Authorization") String token,
                                               Principal principal,
-                                              @RequestBody AssignOrderRequestDto assignOrderRequestDto){
+                                              @RequestBody AssignOrderRequestDto assignOrderRequestDto) {
         return useCase.asignarPedido(principal.getName(), assignOrderRequestDto, token);
+    }
+
+    @PutMapping("/notificar/{pedidoId}")
+    @PreAuthorize("hasAuthority('EMPLEADO')")
+        public Mono<RespuestaMensajeDto> notificarPedido(@RequestHeader("Authorization") String token, @PathVariable String pedidoId){
+        return useCase.pedidoListo(pedidoId,token);
     }
 
 }

@@ -8,7 +8,7 @@ import com.pragma.plazoleta.domain.model.pedido_plato.PedidoPlato;
 import com.pragma.plazoleta.domain.model.pedido_plato.gateway.PedidoPlatoGateWay;
 import com.pragma.plazoleta.domain.model.plato.gateway.PlatoRepository;
 import com.pragma.plazoleta.domain.model.restaurante.gateway.RestauranteRepository;
-import com.pragma.plazoleta.domain.model.usuario.Usuario;
+import com.pragma.plazoleta.domain.model.twilio.gateway.TwilioGateWay;
 import com.pragma.plazoleta.domain.model.usuario.gateway.UsuarioGateWay;
 import com.pragma.plazoleta.infrastructure.exceptions.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Component
@@ -39,7 +38,12 @@ public class PedidoUseCase {
     @Autowired
     UsuarioGateWay usuarioGateWay;
 
+    @Autowired
+    TwilioGateWay twilioGateWay;
+
     private static final String PEDIDO_PENTIENDE = "PENDIENTE";
+    private static final String PEDIDO_LISTO = "PEDIDO LISTO";
+    private static final String USUARIO = "javatechie";
 
     public Flux<PedidoResponse> crearPedido(PedidoDto pedidoDto) {
         if (pedidoDto.getPlatos().isEmpty()) {
@@ -144,5 +148,21 @@ public class PedidoUseCase {
                                                     .listaDePlatos(listaPlatos)
                                                     .build();
                                         }))));
+    }
+
+    public Mono<RespuestaMensajeDto> pedidoListo(String pedidoId, String token) {
+        return pedidoGateWay.encontrarPedidoPorId(Integer.parseInt(pedidoId))
+                .flatMap(pedido -> pedidoGateWay.crearPedido(pedido.toBuilder()
+                        .estado(PEDIDO_LISTO)
+                        .build()))
+                .flatMap(pedido -> usuarioGateWay.conseguirUsuariosDelPedido(UsuarioPedidoRequestDto.builder()
+                        .chef(0)
+                        .cliente(pedido.getClienteId())
+                        .build(), token))
+                .flatMap(usuarioPedidoDto -> twilioGateWay.enviarMensaje(EnviarMensajeDto.builder()
+                        .numeroDestino(usuarioPedidoDto.getCliente().getCelular())
+                        .usuario(USUARIO)
+                        .build(), token));
+
     }
 }
