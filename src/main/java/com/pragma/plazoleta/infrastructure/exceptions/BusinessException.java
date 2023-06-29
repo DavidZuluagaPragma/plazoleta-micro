@@ -19,7 +19,10 @@ public class BusinessException extends ApplicationException{
         ERROR_BASE_DATOS_PLATO_NO_ENCONTRADO("Error en base de datos, plato no encontrado"),
         PLATO_DE_OTRO_RESTAURANTE("El plato solicitado esta se encuentra en otro restaurante"),
         PEDIDO_ACTIVO("El cliente ya tiene un pedido activo"),
-        NO_TIENE_PLATOS("No tiene platos añadidos");
+        NO_TIENE_PLATOS("No tiene platos añadidos"),
+        ERROR_SOLICITUD_USUARIOS("Error al conseguir los usuarios involucrados en el pedido"),
+        ERROR_BASE_DATOS_PEDIDO_NO_ENCONTRADO("Error en base de datos, pedido no encontrado"),
+        ERROR_ENVIAR_MENSAJE("Error al enviar al usuario"),;
 
         private final String message;
 
