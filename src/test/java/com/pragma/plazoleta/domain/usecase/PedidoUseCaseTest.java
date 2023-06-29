@@ -100,7 +100,6 @@ class PedidoUseCaseTest {
         pedidoPlatoRequestDtos.add(pedidoPlatoRequestDto);
 
         PedidoDto pedidoDto = PedidoDto.builder()
-                .chefId(1)
                 .restauranteId(1)
                 .clienteId(2)
                 .platos(pedidoPlatoRequestDtos)
@@ -108,7 +107,7 @@ class PedidoUseCaseTest {
 
         Pedido pedido = Pedido.builder()
                 .estado("PENDIENTE")
-                .chefId(pedidoDto.getChefId())
+                .chefId(1)
                 .clienteId(pedidoDto.getClienteId())
                 .fecha(new Date())
                 .restauranteId(pedidoDto.getRestauranteId())
@@ -137,7 +136,6 @@ class PedidoUseCaseTest {
     void crearPedidoErrorClienteNoTienePlato() {
 
         PedidoDto pedidoDto = PedidoDto.builder()
-                .chefId(1)
                 .restauranteId(1)
                 .clienteId(2)
                 .platos(new ArrayList<>())
@@ -164,7 +162,6 @@ class PedidoUseCaseTest {
         pedidoPlatoRequestDtos.add(pedidoPlatoRequestDto);
 
         PedidoDto pedidoDto = PedidoDto.builder()
-                .chefId(1)
                 .restauranteId(1)
                 .clienteId(2)
                 .platos(pedidoPlatoRequestDtos)
@@ -197,7 +194,6 @@ class PedidoUseCaseTest {
         pedidoPlatoRequestDtos.add(pedidoPlatoRequestDto2);
 
         PedidoDto pedidoDto = PedidoDto.builder()
-                .chefId(1)
                 .restauranteId(1)
                 .clienteId(2)
                 .platos(pedidoPlatoRequestDtos)
@@ -293,6 +289,7 @@ class PedidoUseCaseTest {
                 .build();
 
         PedidoListaDto pedidoListaDto = PedidoListaDto.builder()
+                .id(1)
                 .chef(usuarioPedidoDto.getChef())
                 .cliente(usuarioPedidoDto.getCliente())
                 .estado(pedido.getEstado())
@@ -312,8 +309,91 @@ class PedidoUseCaseTest {
                 .expectNext(pageEsperado)
                 .expectComplete()
                 .verify();
+    }
+
+    @Test
+    void asignarPedidoExitoso() {
+        Pedido pedido = Pedido.builder()
+                .id(1)
+                .estado("PENDIENTE")
+                .chefId(17)
+                .clienteId(1)
+                .fecha(new Date())
+                .restauranteId(1)
+                .build();
+
+        AssignOrderRequestDto assignOrderRequestDto = AssignOrderRequestDto.builder()
+                .estado("EN PREPARACIÓN")
+                .pedidoId(pedido.getId())
+                .build();
+
+        UsuarioPedidoRequestDto usuarioPedidoRequestDto = UsuarioPedidoRequestDto.builder()
+                .chef(pedido.getChefId())
+                .cliente(pedido.getClienteId())
+                .build();
 
 
+        UsuarioPedidoDto usuarioPedidoDto = UsuarioPedidoDto.builder()
+                .chef(Usuario.builder()
+                        .id(17)
+                        .build())
+                .cliente(Usuario.builder()
+                        .id(1)
+                        .build())
+                .build();
+
+        PedidoPlato pedidoPlato = PedidoPlato.builder()
+                .platoId(1)
+                .cantidad(1)
+                .build();
+
+        PlatoData platoData = PlatoData.builder()
+                .id(1)
+                .precio(100.0)
+                .urlImagen("url")
+                .nombre("PICADA")
+                .descripcion("PLATO")
+                .activo(Boolean.TRUE)
+                .categoria(CategoriaData.builder().build())
+                .restaurante(RestauranteData.builder().build())
+                .build();
+
+        PlatoResponseDto platoResponseDto = PlatoResponseDto.builder()
+                .id(platoData.getId())
+                .precio(platoData.getPrecio())
+                .descripcion(platoData.getDescripcion())
+                .nombre(platoData.getNombre())
+                .cantidad(pedidoPlato.getCantidad())
+                .build();
+
+        PedidoListaDto pedidoListaDto = PedidoListaDto.builder()
+                .id(1)
+                .chef(usuarioPedidoDto.getChef())
+                .cliente(usuarioPedidoDto.getCliente())
+                .estado(assignOrderRequestDto.getEstado())
+                .listaDePlatos(List.of(platoResponseDto))
+                .build();
+
+
+
+
+
+        Mockito.when(pedidoGateWay.encontrarPedidoPorId(pedido.getId())).thenReturn(Mono.just(pedido));
+        Mockito.when(pedidoGateWay.crearPedido(pedido
+                .toBuilder()
+                        .chefId(17)
+                        .estado(assignOrderRequestDto.getEstado())
+                .build())).thenReturn(Mono.just(pedido));
+        Mockito.when(usuarioGateWay.conseguirUsuariosDelPedido(usuarioPedidoRequestDto, "TOKEN")).thenReturn(Mono.just(usuarioPedidoDto));
+        Mockito.when(pedidoPlatoGateWay.encontrarTodosLosPedidosPorId(pedido.getId())).thenReturn(Flux.just(pedidoPlato,pedidoPlato));
+        Mockito.when(platoRepository.encontrarPlatoPorId(pedidoPlato.getPlatoId())).thenReturn(Mono.just(Optional.of(platoData)));
+
+        var result = useCase.asignarPedido("17",assignOrderRequestDto, "TOKEN");
+
+        StepVerifier.create(result)
+                .expectNext(pedidoListaDto)
+                .expectComplete()
+                .verify();
     }
 
 }

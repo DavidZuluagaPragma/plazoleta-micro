@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.security.Principal;
+
 
 @RestController
 @RequestMapping("/pedidos")
@@ -28,6 +30,14 @@ public class PedidoController {
     @PreAuthorize("hasAuthority('EMPLEADO')")
     public Mono<Page<PedidoListaDto>> listarPedidosPorEstado(@RequestHeader("Authorization") String token, @PathVariable String estado){
         return useCase.listarPedidosPorEstado(estado, token);
+    }
+
+    @PutMapping("/asignar")
+    @PreAuthorize("hasAuthority('EMPLEADO')")
+    public Mono<PedidoListaDto> asignarPedido(@RequestHeader("Authorization") String token,
+                                              Principal principal,
+                                              @RequestBody AssignOrderRequestDto assignOrderRequestDto){
+        return useCase.asignarPedido(principal.getName(), assignOrderRequestDto, token);
     }
 
 }

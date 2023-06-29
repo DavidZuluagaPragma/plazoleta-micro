@@ -113,4 +113,36 @@ public class PedidoUseCase {
                 .collectList()
                 .map(pedidoListaDtos -> new Page<>(pedidoListaDtos, pedidoListaDtos.stream().count()));
     }
+
+    public Mono<PedidoListaDto> asignarPedido(String usuarioId, AssignOrderRequestDto assignOrderRequestDto, String token) {
+        return pedidoGateWay.encontrarPedidoPorId(assignOrderRequestDto.getPedidoId())
+                .flatMap(pedido -> pedidoGateWay.crearPedido(pedido.toBuilder()
+                                .chefId(Integer.parseInt(usuarioId))
+                                .estado(assignOrderRequestDto.getEstado())
+                                .build())
+                        .flatMap(pedidoModificado -> usuarioGateWay.conseguirUsuariosDelPedido(UsuarioPedidoRequestDto.builder()
+                                        .chef(Integer.parseInt(usuarioId))
+                                        .cliente(pedido.getClienteId())
+                                        .build(), token)
+                                .flatMap(usuarioPedidoDto -> pedidoPlatoGateWay.encontrarTodosLosPedidosPorId(pedido.getId())
+                                        .flatMap(pedidoPlato -> platoRepository.encontrarPlatoPorId(pedidoPlato.getPlatoId())
+                                                .map(platoData -> PlatoResponseDto.builder()
+                                                        .id(platoData.get().getId())
+                                                        .descripcion(platoData.get().getDescripcion())
+                                                        .precio(platoData.get().getPrecio())
+                                                        .nombre(platoData.get().getNombre())
+                                                        .cantidad(pedidoPlato.getCantidad())
+                                                        .build()))
+                                        .collectList() // Esto recogerá todos los elementos en una lista
+                                        .map(listaPlatos -> {
+                                            listaPlatos.remove(0);
+                                            return PedidoListaDto.builder()
+                                                    .id(pedido.getId())
+                                                    .cliente(usuarioPedidoDto.getCliente())
+                                                    .chef(usuarioPedidoDto.getChef())
+                                                    .estado(assignOrderRequestDto.getEstado())
+                                                    .listaDePlatos(listaPlatos)
+                                                    .build();
+                                        }))));
+    }
 }

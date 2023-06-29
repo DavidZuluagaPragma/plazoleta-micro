@@ -3,6 +3,7 @@ package com.pragma.plazoleta.infrastructure.persistence.pedido;
 import com.pragma.plazoleta.aplication.mapper.DataMapper;
 import com.pragma.plazoleta.domain.model.pedido.Pedido;
 import com.pragma.plazoleta.domain.model.pedido.gateway.PedidoGateWay;
+import com.pragma.plazoleta.infrastructure.exceptions.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -44,5 +45,12 @@ public class PedidoAdapterRepository implements PedidoGateWay {
     public Flux<Pedido> encontrarPedidoPorEstado(String estado) {
         return Flux.fromIterable(() -> repository.findAllByEstado(estado).iterator())
                 .map(DataMapper::convertirPedidoDataAPedido);
+    }
+
+    @Override
+    public Mono<Pedido> encontrarPedidoPorId(Integer pedidoId) {
+        return Mono.fromCallable(() -> repository.findById(pedidoId).get())
+                .map(DataMapper::convertirPedidoDataAPedido)
+                .onErrorResume(throwable -> Mono.error(new BusinessException(BusinessException.Type.ERROR_BASE_DATOS_PEDIDO_NO_ENCONTRADO)));
     }
 }

@@ -11,4 +11,6 @@ public interface PedidoGateWay {
     Mono<Pedido> crearPedido(Pedido pedido);
     Mono<Integer> maxId();
     Flux<Pedido> encontrarPedidoPorEstado(String estado);
+
+    Mono<Pedido> encontrarPedidoPorId(Integer pedidoId);
 }
