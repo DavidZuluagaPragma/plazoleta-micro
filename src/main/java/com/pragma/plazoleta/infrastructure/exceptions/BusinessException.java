@@ -23,7 +23,8 @@ public class BusinessException extends ApplicationException{
         ERROR_SOLICITUD_USUARIOS("Error al conseguir los usuarios involucrados en el pedido"),
         ERROR_BASE_DATOS_PEDIDO_NO_ENCONTRADO("Error en base de datos, pedido no encontrado"),
         ERROR_ENVIAR_MENSAJE("Error al enviar al usuario"),
-        ERROR_PEDIDO_COMPLETADO("Error, sólo los pedidos que están en estado  \"Listo \" pueden pasar a estado \"entregado\"");
+        ERROR_PEDIDO_COMPLETADO("Error, sólo los pedidos que están en estado  \"Listo \" pueden pasar a estado \"entregado\""),
+        ERROR_CANCELAR_PEDIDO("Lo sentimos, tu pedido ya está en preparación y no puede cancelarse");
 
         private final String message;
 

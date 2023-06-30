@@ -540,4 +540,60 @@ class PedidoUseCaseTest {
                 .verify();
     }
 
+    @Test
+    void cancelarPedidoExitoso() {
+
+        Pedido pedido = Pedido.builder()
+                .id(1)
+                .estado("PENDIENTE")
+                .chefId(17)
+                .clienteId(1)
+                .fecha(new Date())
+                .restauranteId(1)
+                .build();
+
+        Pedido cancelarPedido = Pedido.builder()
+                .id(1)
+                .estado("CANCELADO")
+                .chefId(17)
+                .clienteId(1)
+                .fecha(new Date())
+                .restauranteId(1)
+                .build();
+
+        Mockito.when(pedidoGateWay.encontrarPedidoPorId(pedido.getId())).thenReturn(Mono.just(pedido));
+        Mockito.when(pedidoGateWay.crearPedido(cancelarPedido)).thenReturn(Mono.just(cancelarPedido));
+
+        var result = useCase.cancelarPedido(pedido.getId());
+
+        StepVerifier.create(result)
+                .expectNext("PEDIDO CANCELADO CON EXITO")
+                .expectComplete()
+                .verify();
+
+    }
+
+    @Test
+    void cancelarPedidoError() {
+
+        Pedido pedido = Pedido.builder()
+                .id(1)
+                .estado("LISTO")
+                .chefId(17)
+                .clienteId(1)
+                .fecha(new Date())
+                .restauranteId(1)
+                .build();
+
+
+        Mockito.when(pedidoGateWay.encontrarPedidoPorId(pedido.getId())).thenReturn(Mono.just(pedido));
+
+        var result = useCase.cancelarPedido(pedido.getId());
+
+        StepVerifier.create(result)
+                .expectErrorMessage(BusinessException.Type.ERROR_CANCELAR_PEDIDO.getMessage())
+                .verify();
+
+    }
+
 }
