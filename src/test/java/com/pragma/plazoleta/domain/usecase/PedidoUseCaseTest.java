@@ -442,9 +442,102 @@ class PedidoUseCaseTest {
 
         StepVerifier.create(result)
                 .expectNext(respuestaMensajeDto)
+                .expectComplete();
+
+    }
+
+
+    @Test
+    void pedidoCompletoExitoso() {
+
+        CompletarPedidoDto completarPedidoDto = CompletarPedidoDto.builder()
+                .codigo("123456")
+                .pedidoId(1)
+                .build();
+
+        EnviarMensajeDto enviarMensajeDto = EnviarMensajeDto.builder()
+                .tiempoContra("123456")
+                .usuario("usuario")
+                .build();
+
+        Pedido pedido = Pedido.builder()
+                .id(1)
+                .estado("LISTO")
+                .chefId(17)
+                .clienteId(1)
+                .fecha(new Date())
+                .restauranteId(1)
+                .build();
+
+        String pedidoCompleto = "PEDIDO COMPLETADO!!";
+
+        Mockito.when(twilioGateWay.validarCodigo(enviarMensajeDto, "TOKEN")).thenReturn(Mono.just("MENSAJE ENVIADO"));
+        Mockito.when(pedidoGateWay.encontrarPedidoPorId(pedido.getId())).thenReturn(Mono.just(pedido));
+        Mockito.when(pedidoGateWay.crearPedido(pedido.toBuilder()
+                        .estado("ENTREGADO")
+                .build())).thenReturn(Mono.just(pedido));
+
+        var result = useCase.completarPedido(completarPedidoDto, "TOKEN");
+
+        StepVerifier.create(result)
+                .expectNext(pedidoCompleto)
                 .expectComplete()
                 .verify();
+    }
 
+    @Test
+    void pedidoCompletoErrorMensajeNoAceptado() {
+
+        CompletarPedidoDto completarPedidoDto = CompletarPedidoDto.builder()
+                .codigo("123456")
+                .pedidoId(1)
+                .build();
+
+        EnviarMensajeDto enviarMensajeDto = EnviarMensajeDto.builder()
+                .tiempoContra("123456")
+                .usuario("usuario")
+                .build();
+
+
+        Mockito.when(twilioGateWay.validarCodigo(enviarMensajeDto, "TOKEN")).thenReturn(Mono.just("Otp invalido prueba de nuevo !"));
+
+        var result = useCase.completarPedido(completarPedidoDto, "TOKEN");
+
+        StepVerifier.create(result)
+                .expectErrorMessage(BusinessException.Type.ERROR_PEDIDO_COMPLETADO.getMessage())
+                .verify();
+    }
+
+    @Test
+    void pedidoCompletoErrorPedidoNoEstabaListo() {
+
+        CompletarPedidoDto completarPedidoDto = CompletarPedidoDto.builder()
+                .codigo("123456")
+                .pedidoId(1)
+                .build();
+
+        EnviarMensajeDto enviarMensajeDto = EnviarMensajeDto.builder()
+                .tiempoContra("123456")
+                .usuario("usuario")
+                .build();
+
+        Pedido pedido = Pedido.builder()
+                .id(1)
+                .estado("PENDIENTE")
+                .chefId(17)
+                .clienteId(1)
+                .fecha(new Date())
+                .restauranteId(1)
+                .build();
+
+        Mockito.when(twilioGateWay.validarCodigo(enviarMensajeDto, "TOKEN")).thenReturn(Mono.just("Otp invalido prueba de nuevo !"));
+        Mockito.when(pedidoGateWay.encontrarPedidoPorId(pedido.getId())).thenReturn(Mono.just(pedido));
+
+        var result = useCase.completarPedido(completarPedidoDto, "TOKEN");
+
+        StepVerifier.create(result)
+                .expectErrorMessage(BusinessException.Type.ERROR_PEDIDO_COMPLETADO.getMessage())
+                .verify();
     }
 
 }

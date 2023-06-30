@@ -19,8 +19,8 @@ public class RestauranteController {
     RestauranteUseCase useCase;
 
     @PostMapping("/crear")
-    public Mono<RestauranteDto> crearRestaurante(@RequestBody RestauranteDto restauranteDto){
-        return useCase.crearRestaurante(DtoMapper.convertirRestauranteDtoARestaurante(restauranteDto))
+    public Mono<RestauranteDto> crearRestaurante(@RequestBody RestauranteDto restauranteDto, @RequestHeader("Authorization") String token){
+        return useCase.crearRestaurante(DtoMapper.convertirRestauranteDtoARestaurante(restauranteDto),token)
                 .map(DtoMapper::convertirRestauranteARestauranteDto);
     }
 

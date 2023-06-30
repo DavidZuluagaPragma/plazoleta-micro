@@ -48,10 +48,10 @@ class RestauranteUseCaseTest {
                 .idPropietario(1)
                 .build();
 
-        Mockito.when(restauranteRepository.esPropetario(String.valueOf(restaurante.getIdPropietario()))).thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(restauranteRepository.esPropetario(String.valueOf(restaurante.getIdPropietario()), "TOKEN")).thenReturn(Mono.just(Boolean.TRUE));
         Mockito.when(restauranteRepository.creaRestaurante(restaurante)).thenReturn(Mono.just(restauranteEsperado));
 
-        var result = restauranteUseCase.crearRestaurante(restauranteEsperado);
+        var result = restauranteUseCase.crearRestaurante(restauranteEsperado,"TOKEN");
 
         StepVerifier.create(result)
                 .expectNext(restauranteEsperado)
@@ -80,9 +80,9 @@ class RestauranteUseCaseTest {
                 .idPropietario(1)
                 .build();
 
-        Mockito.when(restauranteRepository.esPropetario(String.valueOf(restaurante.getIdPropietario()))).thenReturn(Mono.just(Boolean.FALSE));
+        Mockito.when(restauranteRepository.esPropetario(String.valueOf(restaurante.getIdPropietario()), "TOKEN")).thenReturn(Mono.just(Boolean.FALSE));
 
-        var result = restauranteUseCase.crearRestaurante(restauranteEsperado);
+        var result = restauranteUseCase.crearRestaurante(restauranteEsperado, "TOKEN");
 
         StepVerifier.create(result)
                 .expectErrorMessage("El usuario no es rol propetario")
@@ -100,7 +100,7 @@ class RestauranteUseCaseTest {
                 .idPropietario(1)
                 .build();
 
-        var result = restauranteUseCase.crearRestaurante(restauranteEsperado);
+        var result = restauranteUseCase.crearRestaurante(restauranteEsperado,"TOKEN");
 
         StepVerifier.create(result)
                 .expectErrorMessage("El telefono solo puede ser numerico")
@@ -110,9 +110,9 @@ class RestauranteUseCaseTest {
 
     @Test
     void esPropetarioExitoso(){
-        Mockito.when(restauranteRepository.esPropetario("1")).thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(restauranteRepository.esPropetario("1","TOKEN")).thenReturn(Mono.just(Boolean.TRUE));
 
-        var result = restauranteUseCase.esPropetario("1");
+        var result = restauranteUseCase.esPropetario("1","TOKEN");
 
         StepVerifier.create(result)
                 .expectNext(Boolean.TRUE)
