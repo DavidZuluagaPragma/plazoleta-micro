@@ -42,7 +42,11 @@ public class PedidoUseCase {
     TwilioGateWay twilioGateWay;
 
     private static final String PEDIDO_PENTIENDE = "PENDIENTE";
-    private static final String PEDIDO_LISTO = "PEDIDO LISTO";
+    private static final String PEDIDO_LISTO = "LISTO";
+    private static final String PEDIDO_PREPARACION = "EN PREPARACIÓN";
+    private static final String PEDIDO_ENTREGADO = "ENTREGADO";
+    private static final String OTP_INVALIDO = "Otp invalido prueba de nuevo !";
+    private static final String PEDIDO_COMPLETADO = "PEDIDO COMPLETADO!";
     private static final String USUARIO = "javatechie";
 
     public Flux<PedidoResponse> crearPedido(PedidoDto pedidoDto) {
@@ -122,7 +126,7 @@ public class PedidoUseCase {
         return pedidoGateWay.encontrarPedidoPorId(assignOrderRequestDto.getPedidoId())
                 .flatMap(pedido -> pedidoGateWay.crearPedido(pedido.toBuilder()
                                 .chefId(Integer.parseInt(usuarioId))
-                                .estado(assignOrderRequestDto.getEstado())
+                                .estado(PEDIDO_PREPARACION)
                                 .build())
                         .flatMap(pedidoModificado -> usuarioGateWay.conseguirUsuariosDelPedido(UsuarioPedidoRequestDto.builder()
                                         .chef(Integer.parseInt(usuarioId))
@@ -164,5 +168,29 @@ public class PedidoUseCase {
                         .usuario(USUARIO)
                         .build(), token));
 
+    }
+
+    public Mono<String> completarPedido(CompletarPedidoDto completarPedidoDto, String token) {
+        return twilioGateWay.validarCodigo(EnviarMensajeDto.builder()
+                        .tiempoContra(completarPedidoDto.getCodigo())
+                        .usuario(USUARIO)
+                        .build(), token)
+                .flatMap(mensajeRespuesta -> {
+                    if (mensajeRespuesta.equals(OTP_INVALIDO)) {
+                        return Mono.error(new BusinessException(BusinessException.Type.ERROR_PEDIDO_COMPLETADO));
+                    }
+                    return Mono.just(mensajeRespuesta);
+                })
+                .flatMap(respuesta -> pedidoGateWay.encontrarPedidoPorId(completarPedidoDto.getPedidoId())
+                        .flatMap(pedido -> {
+                            if (!pedido.getEstado().equals(PEDIDO_LISTO)) {
+                                return Mono.error(new BusinessException(BusinessException.Type.ERROR_PEDIDO_COMPLETADO));
+                            }
+                            return pedidoGateWay.crearPedido(pedido.toBuilder()
+                                    .estado(PEDIDO_ENTREGADO)
+                                    .build());
+                        }))
+                .thenReturn(PEDIDO_COMPLETADO)
+                .onErrorResume(Mono::error);
     }
 }

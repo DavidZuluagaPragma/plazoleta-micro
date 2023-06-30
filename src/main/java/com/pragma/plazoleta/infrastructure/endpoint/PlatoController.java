@@ -25,13 +25,13 @@ public class PlatoController {
 
     @PostMapping("/crear")
     @PreAuthorize("hasAuthority('PROPETARIO')")
-    public Mono<Plato> crearPlato(@RequestBody PlatoDto platoDto){
-        return useCase.crearPlato(platoDto, platoDto.getUsuarioId());
+    public Mono<Plato> crearPlato(@RequestBody PlatoDto platoDto,Principal principal, @RequestHeader("Authorization") String token){
+        return useCase.crearPlato(platoDto, principal.getName(), token);
     }
 
     @PutMapping("/editar")
-    public Mono<Plato> editarPlato(@RequestBody PlatoEditarDto platoDto){
-        return useCase.editar(platoDto, platoDto.getUsuarioId());
+    public Mono<Plato> editarPlato(@RequestBody PlatoEditarDto platoDto,Principal principal, @RequestHeader("Authorization") String token){
+        return useCase.editar(platoDto, principal.getName(), token);
     }
 
     @PutMapping("/editar-estado")

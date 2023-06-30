@@ -22,9 +22,9 @@ public class RestauranteUseCase {
     @Autowired
     RestauranteRepository restauranteRepository;
 
-    public Mono<Restaurante> crearRestaurante(Restaurante restaurante) {
+    public Mono<Restaurante> crearRestaurante(Restaurante restaurante, String token) {
         return ValidationRestaurante.validarRestauranteDto(restaurante)
-                .flatMap(restauranteValidado -> restauranteRepository.esPropetario(restaurante.getIdPropietario().toString())
+                .flatMap(restauranteValidado -> restauranteRepository.esPropetario(restaurante.getIdPropietario().toString(), token)
                         .flatMap(esPropetario -> {
                             if (!esPropetario) {
                                 return Mono.error(new BusinessException(BusinessException.Type.USUARIO_NO_PROPETARIO));
@@ -33,8 +33,8 @@ public class RestauranteUseCase {
                         }));
     }
 
-    public Mono<Boolean> esPropetario(String usuarioId) {
-        return restauranteRepository.esPropetario(usuarioId);
+    public Mono<Boolean> esPropetario(String usuarioId, String token) {
+        return restauranteRepository.esPropetario(usuarioId, token);
     }
 
     public Mono<Restaurante> existeRestaurante(String restauranteId) {

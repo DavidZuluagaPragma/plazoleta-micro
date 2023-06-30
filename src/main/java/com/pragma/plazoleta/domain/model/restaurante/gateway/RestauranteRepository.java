@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface RestauranteRepository {
-    Mono<Boolean> esPropetario(String usuarioId);
+    Mono<Boolean> esPropetario(String usuarioId, String  token);
     Mono<Restaurante> creaRestaurante(RestauranteData restauranteData);
     Mono<Optional<RestauranteData>> existeRestaurante (String restauranteId);
     Mono<Page<RestauranteData>> conseguirRestaurantes(int numeroPagina, int tamanoPagina);

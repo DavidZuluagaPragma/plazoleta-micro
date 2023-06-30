@@ -51,4 +51,32 @@ public class TwilioService implements TwilioGateWay {
             return Mono.error(e);
         }
     }
+
+    @Override
+    public Mono<String> validarCodigo(EnviarMensajeDto enviarMensajeDto, String token) {
+        try {
+            return WebClient.builder()
+                    .baseUrl(urlBase)
+                    .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .build()
+                    .post()
+                    .uri("/validateOTP" )
+                    .header(Utils.ACCEPT, header.headers().getAccept())
+                    .header(Utils.CONTENT_TYPE, header.headers().getContentType())
+                    .header(HttpHeaders.AUTHORIZATION, token)
+                    .body(Mono.just(enviarMensajeDto), EnviarMensajeDto.class)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .onErrorResume(e -> {
+                        var responseException = (WebClientResponseException) e;
+                        if (e instanceof WebClientResponseException &&
+                                (responseException.getStatusCode().is4xxClientError())) {
+                            return Mono.error(new BusinessException(BusinessException.Type.ERROR_ENVIAR_MENSAJE));
+                        }
+                        return Mono.error(new BusinessException(BusinessException.Type.ERROR_ENVIAR_MENSAJE));
+                    });
+        } catch (Exception e) {
+            return Mono.error(e);
+        }
+    }
 }

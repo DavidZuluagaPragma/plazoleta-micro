@@ -37,8 +37,8 @@ public class PlatoUseCase {
     @Autowired
     CategoriaUseCase categoriaUseCase;
 
-    public Mono<Plato> crearPlato(PlatoDto platoDto, String usuarioId) {
-        return restauranteUseCase.esPropetario(usuarioId)
+    public Mono<Plato> crearPlato(PlatoDto platoDto, String usuarioId, String token) {
+        return restauranteUseCase.esPropetario(usuarioId, token)
                 .flatMap(esPropetario -> {
                     if (!esPropetario) {
                         return Mono.error(new BusinessException(BusinessException.Type.USUARIO_NO_PROPETARIO));
@@ -58,8 +58,8 @@ public class PlatoUseCase {
     }
 
 
-    public Mono<Plato> editar(PlatoEditarDto platoDto, String usuarioId) {
-        return restauranteUseCase.esPropetario(usuarioId)
+    public Mono<Plato> editar(PlatoEditarDto platoDto, String usuarioId, String token) {
+        return restauranteUseCase.esPropetario(usuarioId, token)
                 .flatMap(esPropetario -> {
                     if (Boolean.FALSE.equals(esPropetario)) {
                         return Mono.error(new BusinessException(BusinessException.Type.USUARIO_NO_PROPETARIO));

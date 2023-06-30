@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
@@ -35,13 +36,14 @@ public class RestauranteAdapterRepository implements RestauranteRepository {
     private WebClientConfig webClient;
 
     @Override
-    public Mono<Boolean> esPropetario(String usuarioId) {
+    public Mono<Boolean> esPropetario(String usuarioId, String  token) {
         try {
             return this.webClient.request()
                     .get()
                     .uri("/propetario/" + usuarioId)
                     .header(Utils.ACCEPT, header.headers().getAccept())
                     .header(Utils.CONTENT_TYPE, header.headers().getContentType())
+                    .header(HttpHeaders.AUTHORIZATION, token)
                     .retrieve()
                     .bodyToMono(Boolean.class)
                     .onErrorResume(e -> {

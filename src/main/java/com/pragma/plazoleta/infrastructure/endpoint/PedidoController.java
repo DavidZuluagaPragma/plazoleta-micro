@@ -46,4 +46,10 @@ public class PedidoController {
         return useCase.pedidoListo(pedidoId,token);
     }
 
+    @PutMapping("/completar")
+    @PreAuthorize("hasAuthority('EMPLEADO')")
+    public Mono<String> completarPedido(@RequestHeader("Authorization") String token, @RequestBody CompletarPedidoDto completarPedidoDto){
+        return useCase.completarPedido(completarPedidoDto,token);
+    }
+
 }

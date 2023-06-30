@@ -110,12 +110,12 @@ class PlatoUseCaseTest {
                 .usuarioId("1")
                 .build();
 
-        Mockito.when(restauranteUseCase.esPropetario("1")).thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(restauranteUseCase.esPropetario("1", "TOKEN")).thenReturn(Mono.just(Boolean.TRUE));
         Mockito.when(restauranteUseCase.existeRestaurante("1")).thenReturn(Mono.just(restauranteEsperado));
         Mockito.when(categoriaUseCase.conseguirCategoriaPorId("1")).thenReturn(Mono.just(categoriaEsperada));
         Mockito.when(platoRepository.crearPlato(platoNuevo)).thenReturn(Mono.just(platoEsperado));
 
-        var result = platoUseCase.crearPlato(platoDto, platoDto.getUsuarioId());
+        var result = platoUseCase.crearPlato(platoDto, platoDto.getUsuarioId(), "TOKEN");
 
         StepVerifier.create(result)
                 .expectNext(platoEsperado)
@@ -139,8 +139,8 @@ class PlatoUseCaseTest {
                 .usuarioId("1")
                 .build();
 
-        Mockito.when(restauranteUseCase.esPropetario("1")).thenReturn(Mono.just(Boolean.FALSE));
-        var result = platoUseCase.crearPlato(platoDto, platoDto.getUsuarioId());
+        Mockito.when(restauranteUseCase.esPropetario("1", "TOKEN")).thenReturn(Mono.just(Boolean.FALSE));
+        var result = platoUseCase.crearPlato(platoDto, platoDto.getUsuarioId(), "TOKEN");
 
         StepVerifier.create(result)
                 .expectErrorMessage(BusinessException.Type.USUARIO_NO_PROPETARIO.getMessage())
@@ -192,14 +192,14 @@ class PlatoUseCaseTest {
                 .descripcion(platoDto.getDescripcion())
                 .build();
 
-        Mockito.when(restauranteUseCase.esPropetario("1")).thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(restauranteUseCase.esPropetario("1", "TOKEN")).thenReturn(Mono.just(Boolean.TRUE));
         Mockito.when(platoRepository.encontrarPlatoPorId(1)).thenReturn(Mono.just(Optional.of(platoEncontrado)));
         Mockito.when(platoRepository.crearPlato(platoEncontrado.toBuilder()
                 .precio(platoDto.getPrecio())
                 .descripcion(platoDto.getDescripcion())
                 .build())).thenReturn(Mono.just(platoEditado));
 
-        var result = platoUseCase.editar(platoDto, platoDto.getUsuarioId());
+        var result = platoUseCase.editar(platoDto, platoDto.getUsuarioId(), "TOKEN");
 
         StepVerifier.create(result)
                 .expectNext(platoEditado)
@@ -218,8 +218,8 @@ class PlatoUseCaseTest {
                 .usuarioId("1")
                 .build();
 
-        Mockito.when(restauranteUseCase.esPropetario("1")).thenReturn(Mono.just(Boolean.FALSE));
-        var result = platoUseCase.editar(platoDto, platoDto.getUsuarioId());
+        Mockito.when(restauranteUseCase.esPropetario("1", "TOKEN")).thenReturn(Mono.just(Boolean.FALSE));
+        var result = platoUseCase.editar(platoDto, platoDto.getUsuarioId(), "TOKEN");
 
         StepVerifier.create(result)
                 .expectErrorMessage(BusinessException.Type.USUARIO_NO_PROPETARIO.getMessage())
@@ -234,8 +234,8 @@ class PlatoUseCaseTest {
                 .usuarioId("1")
                 .build();
 
-        Mockito.when(restauranteUseCase.esPropetario("1")).thenReturn(Mono.just(Boolean.TRUE));
-        var result = platoUseCase.editar(platoDto, platoDto.getUsuarioId());
+        Mockito.when(restauranteUseCase.esPropetario("1", "TOKEN")).thenReturn(Mono.just(Boolean.TRUE));
+        var result = platoUseCase.editar(platoDto, platoDto.getUsuarioId(), "TOKEN");
 
         StepVerifier.create(result)
                 .expectErrorMessage(BusinessException.Type.EDITAR_PLATO_ERROR.getMessage())
@@ -251,9 +251,9 @@ class PlatoUseCaseTest {
                 .usuarioId("1")
                 .build();
 
-        Mockito.when(restauranteUseCase.esPropetario("1")).thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(restauranteUseCase.esPropetario("1", "TOKEN")).thenReturn(Mono.just(Boolean.TRUE));
         Mockito.when(platoRepository.encontrarPlatoPorId(1)).thenReturn(Mono.just(Optional.empty()));
-        var result = platoUseCase.editar(platoDto, platoDto.getUsuarioId());
+        var result = platoUseCase.editar(platoDto, platoDto.getUsuarioId(), "TOKEN");
 
         StepVerifier.create(result)
                 .expectErrorMessage(BusinessException.Type.ERROR_BASE_DATOS_PLATO_NO_ENCONTRADO.getMessage())
