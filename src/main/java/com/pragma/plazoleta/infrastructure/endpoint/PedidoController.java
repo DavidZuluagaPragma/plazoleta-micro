@@ -52,4 +52,10 @@ public class PedidoController {
         return useCase.completarPedido(completarPedidoDto,token);
     }
 
+    @PutMapping("/cancelar/{pedidoId}")
+    @PreAuthorize("hasAuthority('CLIENTE')")
+    public Mono<String> cancelarPedido(@PathVariable Integer pedidoId) {
+        return useCase.cancelarPedido(pedidoId);
+    }
+
 }

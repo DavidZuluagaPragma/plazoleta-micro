@@ -47,6 +47,8 @@ public class PedidoUseCase {
     private static final String PEDIDO_ENTREGADO = "ENTREGADO";
     private static final String OTP_INVALIDO = "Otp invalido prueba de nuevo !";
     private static final String PEDIDO_COMPLETADO = "PEDIDO COMPLETADO!";
+    private static final String PEDIDO_CANCELADO = "CANCELADO";
+    private static final String PEDIDO_CANCELADO_EXITO = "PEDIDO CANCELADO CON EXITO";
     private static final String USUARIO = "javatechie";
 
     public Flux<PedidoResponse> crearPedido(PedidoDto pedidoDto) {
@@ -193,4 +195,18 @@ public class PedidoUseCase {
                 .thenReturn(PEDIDO_COMPLETADO)
                 .onErrorResume(Mono::error);
     }
+
+    public Mono<String> cancelarPedido(Integer pedidoId) {
+        return pedidoGateWay.encontrarPedidoPorId(pedidoId)
+                .flatMap(pedido -> {
+                    if (!pedido.getEstado().equals(PEDIDO_PENTIENDE)) {
+                        return Mono.error(new BusinessException(BusinessException.Type.ERROR_CANCELAR_PEDIDO));
+                    }
+                    return pedidoGateWay.crearPedido(pedido.toBuilder()
+                            .estado(PEDIDO_CANCELADO)
+                            .build());
+                })
+                .thenReturn(PEDIDO_CANCELADO_EXITO);
+    }
+
 }
