@@ -1,4 +1,4 @@
-package com.pragma.trazabilidad.aplication;
+package com.pragma.plazoleta.aplication.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

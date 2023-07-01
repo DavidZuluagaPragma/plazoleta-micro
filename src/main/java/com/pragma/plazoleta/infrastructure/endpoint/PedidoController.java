@@ -22,8 +22,8 @@ public class PedidoController {
     PedidoUseCase useCase;
 
     @PostMapping("/crear")
-    public Flux<PedidoResponse> crearPedido(@RequestBody PedidoDto pedidoDto) {
-        return useCase.crearPedido(pedidoDto);
+    public Flux<PedidoResponse> crearPedido(@RequestBody PedidoDto pedidoDto, @RequestHeader("Authorization") String token) {
+        return useCase.crearPedido(pedidoDto, token);
     }
 
     @GetMapping("/listar/{estado}")
@@ -54,8 +54,7 @@ public class PedidoController {
 
     @PutMapping("/cancelar/{pedidoId}")
     @PreAuthorize("hasAuthority('CLIENTE')")
-    public Mono<String> cancelarPedido(@PathVariable Integer pedidoId) {
-        return useCase.cancelarPedido(pedidoId);
+    public Mono<String> cancelarPedido(@PathVariable Integer pedidoId, @RequestHeader("Authorization") String token) {
+        return useCase.cancelarPedido(pedidoId, token);
     }
-
 }

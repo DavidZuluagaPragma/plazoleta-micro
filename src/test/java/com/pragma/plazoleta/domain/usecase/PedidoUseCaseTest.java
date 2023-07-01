@@ -129,7 +129,7 @@ class PedidoUseCaseTest {
         Mockito.when(pedidoPlatoGateWay.crearPedidoPlato(pedidoPlato)).thenReturn(Mono.just(pedidoPlato));
         Mockito.when(pedidoGateWay.crearPedido(pedido)).thenReturn(Mono.just(pedido));
 
-        var result = useCase.crearPedido(pedidoDto);
+        var result = useCase.crearPedido(pedidoDto, "TOKEN");
 
         StepVerifier.create(result)
                 .expectNext(pedidoResponse)
@@ -145,7 +145,7 @@ class PedidoUseCaseTest {
                 .platos(new ArrayList<>())
                 .build();
 
-        var result = useCase.crearPedido(pedidoDto);
+        var result = useCase.crearPedido(pedidoDto,"TOKEN");
 
         StepVerifier.create(result)
                 .expectErrorMessage(BusinessException.Type.NO_TIENE_PLATOS.getMessage())
@@ -171,7 +171,7 @@ class PedidoUseCaseTest {
                 .platos(pedidoPlatoRequestDtos)
                 .build();
 
-        var result = useCase.crearPedido(pedidoDto);
+        var result = useCase.crearPedido(pedidoDto, "TOKEN");
 
         StepVerifier.create(result)
                 .expectErrorMessage(BusinessException.Type.PEDIDO_ACTIVO.getMessage())
@@ -234,7 +234,7 @@ class PedidoUseCaseTest {
         Mockito.when(platoRepository.encontrarPlatoPorId(pedidoPlatoRequestDto.getPlatoId())).thenReturn(Mono.just(Optional.of(platoData)));
         Mockito.when(restauranteRepository.existeRestaurante(platoData.getRestaurante().getId().toString())).thenReturn(Mono.just(Optional.empty()));
 
-        var result = useCase.crearPedido(pedidoDto);
+        var result = useCase.crearPedido(pedidoDto,"TOKEN");
 
         StepVerifier.create(result)
                 .expectErrorMessage("last")
@@ -564,7 +564,7 @@ class PedidoUseCaseTest {
         Mockito.when(pedidoGateWay.encontrarPedidoPorId(pedido.getId())).thenReturn(Mono.just(pedido));
         Mockito.when(pedidoGateWay.crearPedido(cancelarPedido)).thenReturn(Mono.just(cancelarPedido));
 
-        var result = useCase.cancelarPedido(pedido.getId());
+        var result = useCase.cancelarPedido(pedido.getId(), "TOKEN");
 
         StepVerifier.create(result)
                 .expectNext("PEDIDO CANCELADO CON EXITO")
@@ -588,7 +588,7 @@ class PedidoUseCaseTest {
 
         Mockito.when(pedidoGateWay.encontrarPedidoPorId(pedido.getId())).thenReturn(Mono.just(pedido));
 
-        var result = useCase.cancelarPedido(pedido.getId());
+        var result = useCase.cancelarPedido(pedido.getId(),"TOKEN");
 
         StepVerifier.create(result)
                 .expectErrorMessage(BusinessException.Type.ERROR_CANCELAR_PEDIDO.getMessage())
