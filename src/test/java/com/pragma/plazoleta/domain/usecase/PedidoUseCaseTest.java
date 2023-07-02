@@ -8,6 +8,8 @@ import com.pragma.plazoleta.domain.model.pedido_plato.PedidoPlato;
 import com.pragma.plazoleta.domain.model.pedido_plato.gateway.PedidoPlatoGateWay;
 import com.pragma.plazoleta.domain.model.plato.gateway.PlatoRepository;
 import com.pragma.plazoleta.domain.model.restaurante.gateway.RestauranteRepository;
+import com.pragma.plazoleta.domain.model.traceability.Traceability;
+import com.pragma.plazoleta.domain.model.traceability.gateway.TraceabilityGateway;
 import com.pragma.plazoleta.domain.model.twilio.TwilioEstado;
 import com.pragma.plazoleta.domain.model.twilio.gateway.TwilioGateWay;
 import com.pragma.plazoleta.domain.model.usuario.Usuario;
@@ -57,6 +59,9 @@ class PedidoUseCaseTest {
 
     @Mock
     TwilioGateWay twilioGateWay;
+
+    @Mock
+    TraceabilityGateway traceabilityGateway;
 
     @Test
     void crearPedido() {
@@ -592,6 +597,79 @@ class PedidoUseCaseTest {
 
         StepVerifier.create(result)
                 .expectErrorMessage(BusinessException.Type.ERROR_CANCELAR_PEDIDO.getMessage())
+                .verify();
+
+    }
+
+
+    @Test
+    void getTraceabilityByOrderSuccessful() {
+        Traceability traceability = Traceability.builder()
+                .orderId(1)
+                .clientId(1)
+                .date(new Date())
+                .build();
+
+        Pedido order = Pedido.builder()
+                .id(1)
+                .estado("LISTO")
+                .fecha(new Date())
+                .build();
+
+        TraceabilityByOrderResponse traceabilityByOrderResponse = TraceabilityByOrderResponse.builder()
+                .orderId(order.getId())
+                .startDate(order.getFecha())
+                .endDate(traceability.getDate())
+                .efficiency(order.calculateOrderTime(traceability.getDate()))
+                .build();
+
+        Mockito.when(traceabilityGateway.getAllCompletedTraceability("TOKEN")).thenReturn(Flux.just(traceability));
+        Mockito.when(pedidoGateWay.encontrarPedidoPorId(traceability.getOrderId())).thenReturn(Mono.just(order));
+
+        var result = useCase.getTraceabilityByOrder("TOKEN");
+
+        StepVerifier.create(result)
+                .expectNext(traceabilityByOrderResponse)
+                .expectComplete()
+                .verify();
+
+    }
+
+    @Test
+    void getTraceabilityByEmployedSuccessful() {
+        Traceability traceability = Traceability.builder()
+                .orderId(1)
+                .clientId(1)
+                .date(new Date())
+                .employedId(2)
+                .build();
+
+        Pedido order = Pedido.builder()
+                .id(1)
+                .estado("LISTO")
+                .fecha(new Date())
+                .build();
+
+        Usuario user = Usuario.builder()
+                .id(2)
+                .build();
+
+        TraceabilityByEmployedResponse traceabilityByEmployedResponse = TraceabilityByEmployedResponse.builder()
+                .employed(user)
+                .efficiency("0 minutes")
+                .build();
+
+
+
+        Mockito.when(traceabilityGateway.getAllCompletedTraceability("TOKEN")).thenReturn(Flux.just(traceability));
+        Mockito.when(pedidoGateWay.encontrarPedidoPorId(traceability.getOrderId())).thenReturn(Mono.just(order));
+        Mockito.when(usuarioGateWay.findUserById(traceability.getEmployedId(),"TOKEN")).thenReturn(Mono.just(user));
+
+        var result = useCase.getTraceabilityByEmployed("TOKEN");
+
+        StepVerifier.create(result)
+                .expectNext(traceabilityByEmployedResponse)
+                .expectComplete()
                 .verify();
 
     }

@@ -24,7 +24,8 @@ public class BusinessException extends ApplicationException{
         ERROR_BASE_DATOS_PEDIDO_NO_ENCONTRADO("Error en base de datos, pedido no encontrado"),
         ERROR_ENVIAR_MENSAJE("Error al enviar al usuario"),
         ERROR_PEDIDO_COMPLETADO("Error, sólo los pedidos que están en estado  \"Listo \" pueden pasar a estado \"entregado\""),
-        ERROR_CANCELAR_PEDIDO("Lo sentimos, tu pedido ya está en preparación y no puede cancelarse");
+        ERROR_CANCELAR_PEDIDO("Lo sentimos, tu pedido ya está en preparación y no puede cancelarse"),
+        ERROR_GET_TRACEABILITY("Error to get traceability");
 
         private final String message;
 

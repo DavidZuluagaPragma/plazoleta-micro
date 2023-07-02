@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -49,6 +50,31 @@ public class TraceabilityService implements TraceabilityGateway {
                     });
         } catch (Exception e) {
             return Mono.error(e);
+        }
+    }
+
+    @Override
+    public Flux<Traceability> getAllCompletedTraceability(String token) {
+         try {
+            return WebClient.builder()
+                    .baseUrl(urlBase)
+                    .build()
+                    .get()
+                    .header(Utils.ACCEPT, header.headers().getAccept())
+                    .header(Utils.CONTENT_TYPE, header.headers().getContentType())
+                    .header(HttpHeaders.AUTHORIZATION, token)
+                    .retrieve()
+                    .bodyToFlux(Traceability.class)
+                    .onErrorResume(e -> {
+                        var responseException = (WebClientResponseException) e;
+                        if (e instanceof WebClientResponseException &&
+                                (responseException.getStatusCode().is4xxClientError())) {
+                            return Flux.error(new BusinessException(BusinessException.Type.ERROR_GET_TRACEABILITY));
+                        }
+                        return Flux.error(new BusinessException(BusinessException.Type.ERROR_GET_TRACEABILITY));
+                    });
+        } catch (Exception e) {
+            return Flux.error(e);
         }
     }
 }

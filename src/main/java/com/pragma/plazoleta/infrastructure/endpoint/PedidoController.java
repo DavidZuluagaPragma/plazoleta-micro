@@ -57,4 +57,16 @@ public class PedidoController {
     public Mono<String> cancelarPedido(@PathVariable Integer pedidoId, @RequestHeader("Authorization") String token) {
         return useCase.cancelarPedido(pedidoId, token);
     }
+
+    @GetMapping("/traceabilityByOrder")
+    @PreAuthorize("hasAuthority('PROPETARIO')")
+    public Flux<TraceabilityByOrderResponse> getTraceabilityByOrder(@RequestHeader("Authorization") String token) {
+        return useCase.getTraceabilityByOrder(token);
+    }
+
+    @GetMapping("/traceabilityByEmployed")
+    @PreAuthorize("hasAuthority('PROPETARIO')")
+    public Flux<TraceabilityByEmployedResponse> getTraceabilityByEmployed(@RequestHeader("Authorization") String token) {
+        return useCase.getTraceabilityByEmployed(token);
+    }
 }
