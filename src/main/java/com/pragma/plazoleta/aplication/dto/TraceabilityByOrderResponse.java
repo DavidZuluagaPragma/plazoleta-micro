@@ -5,15 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class TraceabilityRequestDto {
+public class TraceabilityByOrderResponse {
     private Integer orderId;
-    private Integer clientId;
-    private String clientEmail;
-    private String newStatus;
-    private Integer employedId;
-    private String employedEmail;
+    private Date startDate;
+    private Date endDate;
+    private String efficiency;
 }

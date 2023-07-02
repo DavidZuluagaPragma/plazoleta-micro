@@ -1,6 +1,7 @@
 package com.pragma.plazoleta.domain.usecase;
 
 import com.pragma.plazoleta.aplication.dto.*;
+import com.pragma.plazoleta.aplication.utils.Utils;
 import com.pragma.plazoleta.domain.model.page.Page;
 import com.pragma.plazoleta.domain.model.pedido.Pedido;
 import com.pragma.plazoleta.domain.model.pedido.gateway.PedidoGateWay;
@@ -8,7 +9,9 @@ import com.pragma.plazoleta.domain.model.pedido_plato.PedidoPlato;
 import com.pragma.plazoleta.domain.model.pedido_plato.gateway.PedidoPlatoGateWay;
 import com.pragma.plazoleta.domain.model.plato.gateway.PlatoRepository;
 import com.pragma.plazoleta.domain.model.restaurante.gateway.RestauranteRepository;
+import com.pragma.plazoleta.domain.model.traceability.gateway.TraceabilityGateway;
 import com.pragma.plazoleta.domain.model.twilio.gateway.TwilioGateWay;
+import com.pragma.plazoleta.domain.model.usuario.Usuario;
 import com.pragma.plazoleta.domain.model.usuario.gateway.UsuarioGateWay;
 import com.pragma.plazoleta.infrastructure.exceptions.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +44,9 @@ public class PedidoUseCase {
     @Autowired
     TwilioGateWay twilioGateWay;
 
+    @Autowired
+    TraceabilityGateway traceabilityGateway;
+
     private static final String PEDIDO_PENTIENDE = "PENDIENTE";
     private static final String PEDIDO_LISTO = "LISTO";
     private static final String PEDIDO_PREPARACION = "EN PREPARACIÓN";
@@ -51,7 +57,7 @@ public class PedidoUseCase {
     private static final String PEDIDO_CANCELADO_EXITO = "PEDIDO CANCELADO CON EXITO";
     private static final String USUARIO = "javatechie";
 
-    public Flux<PedidoResponse> crearPedido(PedidoDto pedidoDto) {
+    public Flux<PedidoResponse> crearPedido(PedidoDto pedidoDto, String token) {
         if (pedidoDto.getPlatos().isEmpty()) {
             return Flux.error(new BusinessException(BusinessException.Type.NO_TIENE_PLATOS));
         }
@@ -86,10 +92,15 @@ public class PedidoUseCase {
                                             .fecha(new Date())
                                             .restauranteId(pedidoDto.getRestauranteId())
                                             .build()))
-                                    .map(pedido -> PedidoResponse.builder()
-                                            .estado(PEDIDO_PENTIENDE)
-                                            .fecha(pedido.getFecha())
-                                            .build()));
+                                    .flatMap(pedido -> traceabilityGateway.createTraceabilityForOrder(TraceabilityRequestDto.builder()
+                                                    .orderId(pedido.getId())
+                                                    .clientId(pedido.getId())
+                                                    .newStatus(PEDIDO_PENTIENDE)
+                                                    .build(), token)
+                                            .thenReturn(PedidoResponse.builder()
+                                                    .estado(PEDIDO_PENTIENDE)
+                                                    .fecha(pedido.getFecha())
+                                                    .build())));
                 });
     }
 
@@ -144,15 +155,22 @@ public class PedidoUseCase {
                                                         .cantidad(pedidoPlato.getCantidad())
                                                         .build()))
                                         .collectList() // Esto recogerá todos los elementos en una lista
-                                        .map(listaPlatos -> {
+                                        .flatMap(listaPlatos -> {
                                             listaPlatos.remove(0);
-                                            return PedidoListaDto.builder()
-                                                    .id(pedido.getId())
-                                                    .cliente(usuarioPedidoDto.getCliente())
-                                                    .chef(usuarioPedidoDto.getChef())
-                                                    .estado(assignOrderRequestDto.getEstado())
-                                                    .listaDePlatos(listaPlatos)
-                                                    .build();
+                                            return traceabilityGateway.createTraceabilityForOrder(TraceabilityRequestDto.builder()
+                                                            .orderId(pedido.getId())
+                                                            .employedId(usuarioPedidoDto.getChef().getId())
+                                                            .employedEmail(usuarioPedidoDto.getChef().getCorreo())
+                                                            .clientEmail(usuarioPedidoDto.getCliente().getCorreo())
+                                                            .newStatus(PEDIDO_PREPARACION)
+                                                            .build(), token)
+                                                    .thenReturn(PedidoListaDto.builder()
+                                                            .id(pedido.getId())
+                                                            .cliente(usuarioPedidoDto.getCliente())
+                                                            .chef(usuarioPedidoDto.getChef())
+                                                            .estado(assignOrderRequestDto.getEstado())
+                                                            .listaDePlatos(listaPlatos)
+                                                            .build());
                                         }))));
     }
 
@@ -165,10 +183,14 @@ public class PedidoUseCase {
                         .chef(0)
                         .cliente(pedido.getClienteId())
                         .build(), token))
-                .flatMap(usuarioPedidoDto -> twilioGateWay.enviarMensaje(EnviarMensajeDto.builder()
-                        .numeroDestino(usuarioPedidoDto.getCliente().getCelular())
-                        .usuario(USUARIO)
-                        .build(), token));
+                .flatMap(usuarioPedidoDto -> traceabilityGateway.createTraceabilityForOrder(TraceabilityRequestDto.builder()
+                                .orderId(Integer.parseInt(pedidoId))
+                                .newStatus(PEDIDO_LISTO)
+                                .build(), token)
+                        .flatMap(traceability -> twilioGateWay.enviarMensaje(EnviarMensajeDto.builder()
+                                .numeroDestino(usuarioPedidoDto.getCliente().getCelular())
+                                .usuario(USUARIO)
+                                .build(), token)));
 
     }
 
@@ -192,11 +214,15 @@ public class PedidoUseCase {
                                     .estado(PEDIDO_ENTREGADO)
                                     .build());
                         }))
+                .flatMap(pedido -> traceabilityGateway.createTraceabilityForOrder(TraceabilityRequestDto.builder()
+                        .orderId(pedido.getId())
+                        .newStatus(PEDIDO_ENTREGADO)
+                        .build(), token))
                 .thenReturn(PEDIDO_COMPLETADO)
                 .onErrorResume(Mono::error);
     }
 
-    public Mono<String> cancelarPedido(Integer pedidoId) {
+    public Mono<String> cancelarPedido(Integer pedidoId, String token) {
         return pedidoGateWay.encontrarPedidoPorId(pedidoId)
                 .flatMap(pedido -> {
                     if (!pedido.getEstado().equals(PEDIDO_PENTIENDE)) {
@@ -206,7 +232,42 @@ public class PedidoUseCase {
                             .estado(PEDIDO_CANCELADO)
                             .build());
                 })
+                .flatMap(pedido -> traceabilityGateway.createTraceabilityForOrder(TraceabilityRequestDto.builder()
+                        .orderId(pedido.getId())
+                        .newStatus(PEDIDO_CANCELADO)
+                        .build(), token))
                 .thenReturn(PEDIDO_CANCELADO_EXITO);
+    }
+
+    public Flux<TraceabilityByOrderResponse> getTraceabilityByOrder(String token) {
+        return traceabilityGateway.getAllCompletedTraceability(token)
+                .flatMap(traceability -> pedidoGateWay.encontrarPedidoPorId(traceability.getOrderId())
+                        .map(pedido -> TraceabilityByOrderResponse.builder()
+                                .orderId(pedido.getId())
+                                .startDate(pedido.getFecha())
+                                .endDate(traceability.getDate())
+                                .efficiency(pedido.calculateOrderTime(traceability.getDate()))
+                                .build()));
+    }
+
+    public Flux<TraceabilityByEmployedResponse> getTraceabilityByEmployed(String token) {
+        return traceabilityGateway.getAllCompletedTraceability(token)
+                .flatMap(traceability -> pedidoGateWay.encontrarPedidoPorId(traceability.getOrderId())
+                        .flatMap(pedido -> usuarioGateWay.findUserById(traceability.getEmployedId(), token)
+                                .map(usuario -> {
+                                    long timeHalf = traceability.getDate().getTime() - pedido.getFecha().getTime();
+                                    return new TraceabilityByEmployedResponse(usuario, Long.toString(timeHalf));
+                                })
+                        )
+                )
+                .groupBy(TraceabilityByEmployedResponse::getEmployed) // Group by employee
+                .flatMap(groupedFlux -> groupedFlux.collectList()
+                        .map(traceabilityByEmployedResponses -> {
+                            Usuario employee = traceabilityByEmployedResponses.get(0).getEmployed(); // Get the employee of the group
+                            String efficiencyAverage = Utils.calculateAverageEfficiency(traceabilityByEmployedResponses); // Calculate average efficiency
+                            return new TraceabilityByEmployedResponse(employee, efficiencyAverage);
+                        })
+                );
     }
 
 }

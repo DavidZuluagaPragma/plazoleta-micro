@@ -1,5 +1,6 @@
 package com.pragma.plazoleta.aplication.dto;
 
+import com.pragma.plazoleta.domain.model.usuario.Usuario;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,11 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class TraceabilityRequestDto {
-    private Integer orderId;
-    private Integer clientId;
-    private String clientEmail;
-    private String newStatus;
-    private Integer employedId;
-    private String employedEmail;
+public class TraceabilityByEmployedResponse {
+    private Usuario employed;
+    private String efficiency;
 }

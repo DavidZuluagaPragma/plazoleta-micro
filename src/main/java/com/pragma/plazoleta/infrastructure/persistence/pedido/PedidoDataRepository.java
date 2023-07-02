@@ -15,4 +15,5 @@ public interface PedidoDataRepository extends CrudRepository<PedidoData, Integer
     Optional<Long> getMaxId();
 
     List<PedidoData> findAllByEstado(String estado);
+    Optional<PedidoData> findByChefIdIsLike(Integer chefId);
 }
