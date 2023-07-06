@@ -15,14 +15,14 @@ import java.util.stream.Collectors;
 @Builder(toBuilder = true)
 public class Page<T> {
 
-    private List<T> contenido;
+    private List<T> content;
 
-    private Long totalElementos;
+    private Long totalElements;
 
     public <R> Page<R> map(Function<? super T, R> mapper) {
         return Page.<R>builder()
-                .contenido(contenido.stream().map(mapper).collect(Collectors.toList()))
-                .totalElementos(totalElementos)
+                .content(content.stream().map(mapper).collect(Collectors.toList()))
+                .totalElements(totalElements)
                 .build();
     }
 

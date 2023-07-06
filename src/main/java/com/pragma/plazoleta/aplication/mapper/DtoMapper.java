@@ -1,14 +1,13 @@
 package com.pragma.plazoleta.aplication.mapper;
 
-import com.pragma.plazoleta.aplication.dto.CategoriaDto;
-import com.pragma.plazoleta.aplication.dto.PlatoDto;
-import com.pragma.plazoleta.aplication.dto.RestauranteDto;
-import com.pragma.plazoleta.aplication.dto.RestauranteRespuestaDto;
-import com.pragma.plazoleta.domain.model.categoria.Categoria;
-import com.pragma.plazoleta.domain.model.plato.Plato;
-import com.pragma.plazoleta.domain.model.restaurante.Restaurante;
-import com.pragma.plazoleta.infrastructure.persistence.plato.PlatoData;
-import com.pragma.plazoleta.infrastructure.persistence.restaurante.RestauranteData;
+import com.pragma.plazoleta.aplication.dto.CategoryDto;
+import com.pragma.plazoleta.aplication.dto.DishDto;
+import com.pragma.plazoleta.aplication.dto.RestaurantDto;
+import com.pragma.plazoleta.aplication.dto.RestaurantResponseDto;
+import com.pragma.plazoleta.domain.model.category.Category;
+import com.pragma.plazoleta.domain.model.dish.Dish;
+import com.pragma.plazoleta.domain.model.restaurant.Restaurant;
+import com.pragma.plazoleta.infrastructure.persistence.restaurante.RestaurantData;
 
 public class DtoMapper {
 
@@ -16,53 +15,49 @@ public class DtoMapper {
         throw new IllegalStateException("Utility class");
     }
 
-    public static Restaurante convertirRestauranteDtoARestaurante(RestauranteDto restauranteDto) {
-        return Restaurante.builder()
-                .id(restauranteDto.getId())
-                .nombre(restauranteDto.getNombre())
-                .direccion(restauranteDto.getDireccion())
-                .idPropietario(restauranteDto.getIdPropietario())
-                .nit(restauranteDto.getNit())
-                .telefono(restauranteDto.getTelefono())
-                .urlLogo(restauranteDto.getUrlLogo())
+    public static Restaurant convertRestaurantDtoToRestaurant(RestaurantDto restaurantDto) {
+        return Restaurant.builder()
+                .id(restaurantDto.getId())
+                .name(restaurantDto.getName())
+                .address(restaurantDto.getAddress())
+                .ownerId(restaurantDto.getOwnerId())
+                .nit(restaurantDto.getNit())
+                .phone(restaurantDto.getPhone())
+                .logoUrl(restaurantDto.getLogoUrl())
                 .build();
     }
-
-    public static RestauranteDto convertirRestauranteARestauranteDto(Restaurante restaurante) {
-        return RestauranteDto.builder()
-                .id(restaurante.getId())
-                .nombre(restaurante.getNombre())
-                .direccion(restaurante.getDireccion())
-                .idPropietario(restaurante.getIdPropietario())
-                .nit(restaurante.getNit())
-                .telefono(restaurante.getTelefono())
-                .urlLogo(restaurante.getUrlLogo())
+    public static RestaurantDto convertRestaurantToRestaurantDto(Restaurant restaurant) {
+        return RestaurantDto.builder()
+                .id(restaurant.getId())
+                .name(restaurant.getName())
+                .address(restaurant.getAddress())
+                .ownerId(restaurant.getOwnerId())
+                .nit(restaurant.getNit())
+                .phone(restaurant.getPhone())
+                .logoUrl(restaurant.getLogoUrl())
                 .build();
     }
-
-    public static Plato convertirPlatoDtoAPlato(PlatoDto platoDto) {
-        return Plato.builder()
-                .id(platoDto.getId())
-                .nombre(platoDto.getNombre())
-                .descripcion(platoDto.getDescripcion())
-                .activo(platoDto.getActivo())
-                .precio(platoDto.getPrecio())
-                .urlImagen(platoDto.getUrlImagen())
+    public static Dish convertDishDtoToDish(DishDto dishDto) {
+        return Dish.builder()
+                .id(dishDto.getId())
+                .name(dishDto.getName())
+                .description(dishDto.getDescription())
+                .active(dishDto.getActive())
+                .price(dishDto.getPrice())
+                .imageUrl(dishDto.getImageUrl())
                 .build();
     }
-
-    public static Categoria convertirCategoriaDtoACategoria(CategoriaDto categoriaDto) {
-        return Categoria.builder()
-                .Id(categoriaDto.getId())
-                .Nombre(categoriaDto.getNombre())
-                .Descripcion(categoriaDto.getDescripcion())
+    public static Category convertCategoryDtoToCategory(CategoryDto categoryDto) {
+        return Category.builder()
+                .id(categoryDto.getId())
+                .name(categoryDto.getName())
+                .description(categoryDto.getDescription())
                 .build();
     }
-
-    public static RestauranteRespuestaDto convertirRestauranteDataARestauranteRespuesta(RestauranteData restauranteData) {
-        return RestauranteRespuestaDto.builder()
-                .nombre(restauranteData.getNombre())
-                .urlLogo(restauranteData.getUrlLogo())
+    public static RestaurantResponseDto convertRestaurantDataToRestaurantResponse(RestaurantData restaurantData) {
+        return RestaurantResponseDto.builder()
+                .name(restaurantData.getName())
+                .logoUrl(restaurantData.getLogoUrl())
                 .build();
     }
 

@@ -1,18 +1,18 @@
 package com.pragma.plazoleta.aplication.mapper;
 
-import com.pragma.plazoleta.aplication.dto.CategoriaDto;
-import com.pragma.plazoleta.aplication.dto.PlatoRespuestaDto;
-import com.pragma.plazoleta.aplication.dto.RestauranteRespuestaDto;
-import com.pragma.plazoleta.domain.model.categoria.Categoria;
-import com.pragma.plazoleta.domain.model.pedido.Pedido;
-import com.pragma.plazoleta.domain.model.pedido_plato.PedidoPlato;
-import com.pragma.plazoleta.domain.model.plato.Plato;
-import com.pragma.plazoleta.domain.model.restaurante.Restaurante;
-import com.pragma.plazoleta.infrastructure.persistence.categoria.CategoriaData;
-import com.pragma.plazoleta.infrastructure.persistence.pedido.PedidoData;
-import com.pragma.plazoleta.infrastructure.persistence.pedido_plato.PedidoPlatoData;
-import com.pragma.plazoleta.infrastructure.persistence.plato.PlatoData;
-import com.pragma.plazoleta.infrastructure.persistence.restaurante.RestauranteData;
+import com.pragma.plazoleta.aplication.dto.CategoryDto;
+import com.pragma.plazoleta.aplication.dto.PlateResponseDto;
+import com.pragma.plazoleta.aplication.dto.RestaurantResponseDto;
+import com.pragma.plazoleta.domain.model.category.Category;
+import com.pragma.plazoleta.domain.model.order.Order;
+import com.pragma.plazoleta.domain.model.order_dish.DishOrder;
+import com.pragma.plazoleta.domain.model.dish.Dish;
+import com.pragma.plazoleta.domain.model.restaurant.Restaurant;
+import com.pragma.plazoleta.infrastructure.persistence.categoria.CategoryData;
+import com.pragma.plazoleta.infrastructure.persistence.pedido.OrderData;
+import com.pragma.plazoleta.infrastructure.persistence.pedido_plato.DishOrderData;
+import com.pragma.plazoleta.infrastructure.persistence.plato.DishData;
+import com.pragma.plazoleta.infrastructure.persistence.restaurante.RestaurantData;
 
 public class DataMapper {
 
@@ -20,111 +20,103 @@ public class DataMapper {
         throw new IllegalStateException("Utility class");
     }
 
-    public static Restaurante convertirRestauranteDataARestaurante(RestauranteData restauranteData) {
-        return Restaurante.builder()
-                .id(restauranteData.getId())
-                .nombre(restauranteData.getNombre())
-                .direccion(restauranteData.getDireccion())
-                .idPropietario(restauranteData.getIdPropietario())
-                .nit(restauranteData.getNit())
-                .telefono(restauranteData.getTelefono())
-                .urlLogo(restauranteData.getUrlLogo())
+    public static Restaurant convertRestaurantDataToRestaurant(RestaurantData restaurantData) {
+        return Restaurant.builder()
+                .id(restaurantData.getId())
+                .name(restaurantData.getName())
+                .address(restaurantData.getAddress())
+                .ownerId(restaurantData.getOwnerId())
+                .nit(restaurantData.getNit())
+                .phone(restaurantData.getPhone())
+                .logoUrl(restaurantData.getLogoUrl())
                 .build();
     }
-
-    public static RestauranteData convertirRestauranteARestauranteData(Restaurante restaurante) {
-        return RestauranteData.builder()
-                .id(restaurante.getId())
-                .nombre(restaurante.getNombre())
-                .direccion(restaurante.getDireccion())
-                .idPropietario(restaurante.getIdPropietario())
-                .nit(restaurante.getNit())
-                .telefono(restaurante.getTelefono())
-                .urlLogo(restaurante.getUrlLogo())
+    public static RestaurantData convertRestaurantToRestaurantData(Restaurant restaurant) {
+        return RestaurantData.builder()
+                .id(restaurant.getId())
+                .name(restaurant.getName())
+                .address(restaurant.getAddress())
+                .ownerId(restaurant.getOwnerId())
+                .nit(restaurant.getNit())
+                .phone(restaurant.getPhone())
+                .logoUrl(restaurant.getLogoUrl())
                 .build();
     }
-
-    public static Categoria convertirCategoriaDataACategoria(CategoriaData categoriaData) {
-        return Categoria.builder()
-                .Id(categoriaData.getId())
-                .Nombre(categoriaData.getNombre())
-                .Descripcion(categoriaData.getDescripcion())
+    public static Category convertCategoryDataToCategory(CategoryData categoryData) {
+        return Category.builder()
+                .id(categoryData.getId())
+                .name(categoryData.getName())
+                .description(categoryData.getDescription())
                 .build();
     }
-
-    public static CategoriaData convertirCategoriaACategoriaData(Categoria categoria) {
-        return CategoriaData.builder()
-                .Id(categoria.getId())
-                .Nombre(categoria.getNombre())
-                .Descripcion(categoria.getDescripcion())
+    public static CategoryData convertCategoryToCategoryData(Category category) {
+        return CategoryData.builder()
+                .id(category.getId())
+                .name(category.getName())
+                .description(category.getDescription())
                 .build();
     }
-
-    public static Plato convertirPlatoDataAPlato(PlatoData platoData) {
-        return Plato.builder()
-                .id(platoData.getId())
-                .nombre(platoData.getNombre())
-                .descripcion(platoData.getDescripcion())
-                .activo(platoData.getActivo())
-                .categoriaId(platoData.getCategoria().getId())
-                .restauranteId(platoData.getRestaurante().getId())
-                .precio(platoData.getPrecio())
-                .urlImagen(platoData.getUrlImagen())
+    public static Dish convertDishDataToDish(DishData dishData) {
+        return Dish.builder()
+                .id(dishData.getId())
+                .name(dishData.getName())
+                .description(dishData.getDescription())
+                .active(dishData.getActive())
+                .categoryId(dishData.getCategory().getId())
+                .restaurantId(dishData.getRestaurant().getId())
+                .price(dishData.getPrice())
+                .imageUrl(dishData.getImageUrl())
                 .build();
     }
-
-    public static PlatoRespuestaDto convertirPlatoDataAPlatoRespuestaDto(PlatoData plato) {
-        return PlatoRespuestaDto.builder()
-                .categoriaDto(CategoriaDto
+    public static PlateResponseDto convertDishDataToDishResponseDto(DishData dish) {
+        return PlateResponseDto.builder()
+                .categoryDto(CategoryDto
                         .builder()
-                        .id(plato.getCategoria().getId())
-                        .nombre(plato.getCategoria().getNombre())
-                        .descripcion(plato.getCategoria().getDescripcion())
+                        .id(dish.getCategory().getId())
+                        .name(dish.getCategory().getName())
+                        .description(dish.getCategory().getDescription())
                         .build())
-                .restauranteDto(RestauranteRespuestaDto
+                .restaurantDto(RestaurantResponseDto
                         .builder()
-                        .nombre(plato.getRestaurante().getNombre())
-                        .urlLogo(plato.getRestaurante().getUrlLogo())
+                        .name(dish.getRestaurant().getName())
+                        .logoUrl(dish.getRestaurant().getLogoUrl())
                         .build())
                 .build();
     }
 
-    public static Pedido convertirPedidoDataAPedido(PedidoData pedidoData) {
-        return Pedido.builder()
-                .id(pedidoData.getId())
-                .estado(pedidoData.getEstado())
-                .chefId(pedidoData.getChefId())
-                .clienteId(pedidoData.getClienteId())
-                .fecha(pedidoData.getFecha())
-                .restauranteId(pedidoData.getRestauranteId())
+    public static Order convertOrderDataToOrder(OrderData orderData) {
+        return Order.builder()
+                .id(orderData.getId())
+                .status(orderData.getStatus())
+                .chefId(orderData.getChefId())
+                .clientId(orderData.getClientId())
+                .date(orderData.getDate())
+                .restaurantId(orderData.getRestaurantId())
                 .build();
     }
-
-    public static PedidoData convertirPedidoAPedidoData(Pedido pedido) {
-        return PedidoData.builder()
-                .id(pedido.getId())
-                .estado(pedido.getEstado())
-                .chefId(pedido.getChefId())
-                .clienteId(pedido.getClienteId())
-                .fecha(pedido.getFecha())
-                .restauranteId(pedido.getRestauranteId())
+    public static OrderData convertOrderToOrderData(Order order) {
+        return OrderData.builder()
+                .id(order.getId())
+                .status(order.getStatus())
+                .chefId(order.getChefId())
+                .clientId(order.getClientId())
+                .date(order.getDate())
+                .restaurantId(order.getRestaurantId())
                 .build();
     }
-
-    public static PedidoPlato convertirPedidoPlatoDataAPedidoPlato(PedidoPlatoData pedidoPlatoData) {
-        return PedidoPlato.builder()
-                .platoId(pedidoPlatoData.getPlatoId())
-                .pedidoId(pedidoPlatoData.getPedidoId())
-                .cantidad(pedidoPlatoData.getCantidad())
+    public static DishOrder convertDishOrderDataToDishOrder(DishOrderData dishOrderData) {
+        return DishOrder.builder()
+                .dishId(dishOrderData.getDishId())
+                .orderId(dishOrderData.getOrderId())
+                .amount(dishOrderData.getAmount())
                 .build();
     }
-
-    public static PedidoPlatoData convertirPedidoPlatoAPedidoPlatoData (PedidoPlato pedido) {
-        return PedidoPlatoData.builder()
-                .id(pedido.getId())
-                .platoId(pedido.getPlatoId())
-                .pedidoId(pedido.getPedidoId())
-                .cantidad(pedido.getCantidad())
+    public static DishOrderData convertDishOrderToDishOrderData(DishOrder dishOrder) {
+        return DishOrderData.builder()
+                .id(dishOrder.getId())
+                .dishId(dishOrder.getDishId())
+                .orderId(dishOrder.getOrderId())
+                .amount(dishOrder.getAmount())
                 .build();
     }
 

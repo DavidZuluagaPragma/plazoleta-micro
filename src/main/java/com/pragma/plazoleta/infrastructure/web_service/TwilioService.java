@@ -1,8 +1,8 @@
 package com.pragma.plazoleta.infrastructure.web_service;
 
 import com.pragma.plazoleta.aplication.config.HeaderRequest;
-import com.pragma.plazoleta.aplication.dto.EnviarMensajeDto;
-import com.pragma.plazoleta.aplication.dto.RespuestaMensajeDto;
+import com.pragma.plazoleta.aplication.dto.SendMessageDto;
+import com.pragma.plazoleta.aplication.dto.MessageResponseDto;
 import com.pragma.plazoleta.domain.model.common.Utils;
 import com.pragma.plazoleta.domain.model.twilio.gateway.TwilioGateWay;
 import com.pragma.plazoleta.infrastructure.exceptions.BusinessException;
@@ -25,7 +25,7 @@ public class TwilioService implements TwilioGateWay {
     private String urlBase;
 
     @Override
-    public Mono<RespuestaMensajeDto> enviarMensaje(EnviarMensajeDto enviarMensajeDto, String token) {
+    public Mono<MessageResponseDto> sendMessage(SendMessageDto sendMessageDto, String token) {
         try {
             return WebClient.builder()
                     .baseUrl(urlBase)
@@ -36,24 +36,23 @@ public class TwilioService implements TwilioGateWay {
                     .header(Utils.ACCEPT, header.headers().getAccept())
                     .header(Utils.CONTENT_TYPE, header.headers().getContentType())
                     .header(HttpHeaders.AUTHORIZATION, token)
-                    .body(Mono.just(enviarMensajeDto), EnviarMensajeDto.class)
+                    .body(Mono.just(sendMessageDto), SendMessageDto.class)
                     .retrieve()
-                    .bodyToMono(RespuestaMensajeDto.class)
+                    .bodyToMono(MessageResponseDto.class)
                     .onErrorResume(e -> {
                         var responseException = (WebClientResponseException) e;
                         if (e instanceof WebClientResponseException &&
                                 (responseException.getStatusCode().is4xxClientError())) {
-                            return Mono.error(new BusinessException(BusinessException.Type.ERROR_ENVIAR_MENSAJE));
+                            return Mono.error(new BusinessException(BusinessException.Type.ERROR_SENDING_MESSAGE));
                         }
-                        return Mono.error(new BusinessException(BusinessException.Type.ERROR_ENVIAR_MENSAJE));
+                        return Mono.error(new BusinessException(BusinessException.Type.ERROR_SENDING_MESSAGE));
                     });
         } catch (Exception e) {
             return Mono.error(e);
         }
     }
-
     @Override
-    public Mono<String> validarCodigo(EnviarMensajeDto enviarMensajeDto, String token) {
+    public Mono<String> validateCode(SendMessageDto sendMessageDto, String token) {
         try {
             return WebClient.builder()
                     .baseUrl(urlBase)
@@ -64,16 +63,16 @@ public class TwilioService implements TwilioGateWay {
                     .header(Utils.ACCEPT, header.headers().getAccept())
                     .header(Utils.CONTENT_TYPE, header.headers().getContentType())
                     .header(HttpHeaders.AUTHORIZATION, token)
-                    .body(Mono.just(enviarMensajeDto), EnviarMensajeDto.class)
+                    .body(Mono.just(sendMessageDto), SendMessageDto.class)
                     .retrieve()
                     .bodyToMono(String.class)
                     .onErrorResume(e -> {
                         var responseException = (WebClientResponseException) e;
                         if (e instanceof WebClientResponseException &&
                                 (responseException.getStatusCode().is4xxClientError())) {
-                            return Mono.error(new BusinessException(BusinessException.Type.ERROR_ENVIAR_MENSAJE));
+                            return Mono.error(new BusinessException(BusinessException.Type.ERROR_SENDING_MESSAGE));
                         }
-                        return Mono.error(new BusinessException(BusinessException.Type.ERROR_ENVIAR_MENSAJE));
+                        return Mono.error(new BusinessException(BusinessException.Type.ERROR_SENDING_MESSAGE));
                     });
         } catch (Exception e) {
             return Mono.error(e);

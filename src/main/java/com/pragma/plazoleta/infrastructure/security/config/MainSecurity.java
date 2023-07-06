@@ -17,11 +17,20 @@ public class MainSecurity {
 
     private final SecurityContextRepository securityContextRepository;
 
+    private static final String[] AUTH_WHITELIST = {
+            "/",
+            "/swagger-ui/**",
+            "/swagger-resources/**",
+            "/swagger-ui.html",
+            "/v2/api-docs",
+            "/v3/api-docs",
+            "/webjars/**"
+    };
     @Bean
     public SecurityWebFilterChain filterChain(ServerHttpSecurity http, JwtFilter jwtFilter) {
         return http
                 .authorizeExchange()
-                .pathMatchers("/").permitAll()
+                .pathMatchers(AUTH_WHITELIST).permitAll()
                 .anyExchange().authenticated()
                 .and()
                 .addFilterAfter(jwtFilter, SecurityWebFiltersOrder.FIRST)
