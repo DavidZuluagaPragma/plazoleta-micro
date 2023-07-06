@@ -2,11 +2,11 @@ package com.pragma.plazoleta.infrastructure.web_service;
 
 import com.pragma.plazoleta.aplication.config.HeaderRequest;
 import com.pragma.plazoleta.aplication.config.WebClientConfig;
-import com.pragma.plazoleta.aplication.dto.UsuarioPedidoDto;
-import com.pragma.plazoleta.aplication.dto.UsuarioPedidoRequestDto;
+import com.pragma.plazoleta.aplication.dto.UserOrderDto;
+import com.pragma.plazoleta.aplication.dto.UserOrderRequestDto;
 import com.pragma.plazoleta.domain.model.common.Utils;
-import com.pragma.plazoleta.domain.model.usuario.Usuario;
-import com.pragma.plazoleta.domain.model.usuario.gateway.UsuarioGateWay;
+import com.pragma.plazoleta.domain.model.user.User;
+import com.pragma.plazoleta.domain.model.user.gateway.UserGateway;
 import com.pragma.plazoleta.infrastructure.exceptions.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -15,7 +15,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono;
 
 @Service
-public class UsuarioService implements UsuarioGateWay {
+public class UsuarioService implements UserGateway {
 
     @Autowired
     private HeaderRequest header;
@@ -24,24 +24,24 @@ public class UsuarioService implements UsuarioGateWay {
     private WebClientConfig webClient;
 
     @Override
-    public Mono<UsuarioPedidoDto> conseguirUsuariosDelPedido(UsuarioPedidoRequestDto usuarioPedidoRequestDto, String token) {
+    public Mono<UserOrderDto> getUsersFromOrder(UserOrderRequestDto userOrderRequestDto, String token) {
         try {
             return this.webClient.request()
                     .post()
-                    .uri("/pedidos" )
+                    .uri("/orders")
                     .header(Utils.ACCEPT, header.headers().getAccept())
                     .header(Utils.CONTENT_TYPE, header.headers().getContentType())
                     .header(HttpHeaders.AUTHORIZATION, token)
-                    .body(Mono.just(usuarioPedidoRequestDto),UsuarioPedidoRequestDto.class)
+                    .body(Mono.just(userOrderRequestDto), UserOrderRequestDto.class)
                     .retrieve()
-                    .bodyToMono(UsuarioPedidoDto.class)
+                    .bodyToMono(UserOrderDto.class)
                     .onErrorResume(e -> {
                         var responseException = (WebClientResponseException) e;
                         if (e instanceof WebClientResponseException &&
                                 (responseException.getStatusCode().is4xxClientError())) {
-                            return Mono.error(new BusinessException(BusinessException.Type.ERROR_SOLICITUD_USUARIOS));
+                            return Mono.error(new BusinessException(BusinessException.Type.ERROR_GETTING_USERS));
                         }
-                        return Mono.error(new BusinessException(BusinessException.Type.ERROR_SOLICITUD_USUARIOS));
+                        return Mono.error(new BusinessException(BusinessException.Type.ERROR_GETTING_USERS));
                     });
         } catch (Exception e) {
             return Mono.error(e);
@@ -49,23 +49,23 @@ public class UsuarioService implements UsuarioGateWay {
     }
 
     @Override
-    public Mono<Usuario> findUserById(Integer userId, String token) {
+    public Mono<User> findUserById(Integer userId, String token) {
         try {
             return this.webClient.request()
                     .get()
-                    .uri("/usuario/"+userId )
+                    .uri("/user/" + userId)
                     .header(Utils.ACCEPT, header.headers().getAccept())
                     .header(Utils.CONTENT_TYPE, header.headers().getContentType())
                     .header(HttpHeaders.AUTHORIZATION, token)
                     .retrieve()
-                    .bodyToMono(Usuario.class)
+                    .bodyToMono(User.class)
                     .onErrorResume(e -> {
                         var responseException = (WebClientResponseException) e;
                         if (e instanceof WebClientResponseException &&
                                 (responseException.getStatusCode().is4xxClientError())) {
-                            return Mono.error(new BusinessException(BusinessException.Type.ERROR_SOLICITUD_USUARIOS));
+                            return Mono.error(new BusinessException(BusinessException.Type.ERROR_GETTING_USERS));
                         }
-                        return Mono.error(new BusinessException(BusinessException.Type.ERROR_SOLICITUD_USUARIOS));
+                        return Mono.error(new BusinessException(BusinessException.Type.ERROR_GETTING_USERS));
                     });
         } catch (Exception e) {
             return Mono.error(e);

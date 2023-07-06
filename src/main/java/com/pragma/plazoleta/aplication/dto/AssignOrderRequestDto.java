@@ -8,6 +8,6 @@ import lombok.Data;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class AssignOrderRequestDto {
-    private Integer pedidoId;
-    private String estado;
+    private Integer orderId;
+    private String status;
 }
